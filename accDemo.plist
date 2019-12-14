@@ -1,1 +1,10 @@
-{ Filter = { Bundles = ( "com.bilibili.fatego" ); }; }
+{
+	Filter = {
+		Bundles = (
+			"com.apple.springboard",
+			"com.bilibili.fatego",
+			"com.xiaomeng.fategrandorder",
+			"com.brend0n.ProductName",
+		);
+	};
+}
