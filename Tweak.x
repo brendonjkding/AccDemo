@@ -9,63 +9,78 @@
 #import <Foundation/Foundation.h>
 extern kern_return_t
 mach_vm_read(
-		vm_map_t		map,
-		mach_vm_address_t	addr,
-		mach_vm_size_t		size,
-		pointer_t		*data,
-		mach_msg_type_number_t	*data_size);
+	vm_map_t		map,
+	mach_vm_address_t	addr,
+	mach_vm_size_t		size,
+	pointer_t		*data,
+	mach_msg_type_number_t	*data_size);
 
 extern kern_return_t
 mach_vm_write(
-		vm_map_t			map,
-		mach_vm_address_t		address,
-		pointer_t			data,
-		__unused mach_msg_type_number_t	size);
+	vm_map_t			map,
+	mach_vm_address_t		address,
+	pointer_t			data,
+	__unused mach_msg_type_number_t	size);
 
 extern kern_return_t
 mach_vm_region(
-		vm_map_t		 map,
-		mach_vm_offset_t	*address,
-		mach_vm_size_t		*size,		
-		vm_region_flavor_t	 flavor,
-		vm_region_info_t	 info,		
-		mach_msg_type_number_t	*count,	
-		mach_port_t		*object_name);
+	vm_map_t		 map,
+	mach_vm_offset_t	*address,
+	mach_vm_size_t		*size,		
+	vm_region_flavor_t	 flavor,
+	vm_region_info_t	 info,		
+	mach_msg_type_number_t	*count,	
+	mach_port_t		*object_name);
 
 extern kern_return_t mach_vm_protect(vm_map_t, mach_vm_address_t, mach_vm_size_t, boolean_t, vm_prot_t);
 extern intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 
+float rates[4];
+int rate_i=0;
+int rate_count=0;
 
+
+time_t pre_sec=0;
+time_t true_pre_sec=0;
+suseconds_t pre_usec=0;
+suseconds_t true_pre_usec=0;
 
 static int (*orig_gettimeofday)(struct timeval * __restrict, void * __restrict);
 static int mygettimeofday(struct timeval*tv,struct timezone *tz ) {
-    int ret = orig_gettimeofday(tv,tz);
-    if (!ret) {
-        tv->tv_usec *= 5;
-        tv->tv_sec *= 5;
-    }
-    return ret;
+	int ret = orig_gettimeofday(tv,tz);
+	if (!ret) {
+		if(!pre_sec){
+			pre_sec=tv->tv_sec;
+			true_pre_sec=tv->tv_sec;
+			pre_usec=tv->tv_usec;
+			true_pre_usec=tv->tv_usec;
+		}
+		else{
+			time_t used_sec = pre_sec + (tv->tv_sec - true_pre_sec) * rates[rate_i];
+			suseconds_t used_usec = pre_usec + (tv->tv_usec - true_pre_usec) * rates[rate_i];
+			true_pre_sec = tv->tv_sec;
+			true_pre_usec = tv->tv_usec;
+			tv->tv_sec = used_sec;
+			tv->tv_usec = used_usec;
+			pre_sec = used_sec;
+			pre_usec = used_usec;
+
+		}
+	}
+	return ret;
 }
 
 WQSuspendView *button=0;
 float orig_scale=0;
-float scale;
-
-float rates[4];
-int rate_i=0;
-int rate_count;
-bool on=1;
 long scale_arg1=0;
 
 static long (*orig_time_init)(long arg1,long arg2, long arg3, long arg4, long arg5);
 long my_time_init(long arg1,long arg2, long arg3, long arg4, long arg5){
 	NSLog(@"my_time_init called");
-	NSLog(@"ASLR=0x%lx",_dyld_get_image_vmaddr_slide(0));
 	// NSLog(@"arg1=0x%lx arg2=0x%lx arg3=0x%lx arg4=0x%lx arg5=0x%lx",
 	// 	arg1,arg1,arg3,arg4,arg5);
 	return orig_time_init(arg1,arg2,arg3,arg4,arg5);
 }
-
 
 static void (*orig_time_scale)(long arg1,float arg2);
 void my_time_scale(long arg1,float arg2){
@@ -77,26 +92,29 @@ void my_time_scale(long arg1,float arg2){
 	if(arg2) arg2=orig_scale*rates[rate_i];
 	else orig_scale=0;
 	orig_time_scale(arg1,arg2);
-		
+
 	if(arg2)NSLog(@"used scale:%f",arg2);
 	
 	
 	// float* p=(float*)(arg1+0xcc);
-	// float speed=*p;
-	// NSLog(@"speed:%f",speed);
-	
+	// float scale=*p;
+	// NSLog(@"scale:%f",scale);
 }
 
-void cocos2d(){
+bool cocos2d(){
 	void* gettimeofday=(void *)MSFindSymbol(NULL,"_gettimeofday");
 	if(gettimeofday) {
 		MSHookFunction(gettimeofday, (void *)mygettimeofday, (void **)&orig_gettimeofday);
-		NSLog(@"hook success");
+		NSLog(@"hook gettimeofday success");
+		return true;
 	}
-	else NSLog(@"hook failed");
+	else {
+		NSLog(@"hook gettimeofday failed");
+		return false;
+	}
 }
 
-void unity(){
+bool unity(){
 	bool flag1=0,flag2=0;
 	kern_return_t kret;
 	mach_port_t task=mach_task_self(); // type vm_map_t = mach_port_t in mach_types.defs
@@ -108,21 +126,21 @@ void unity(){
 	int occurranceCount = 0;
 	long realAddress=0;
 	char oldValue[20]; // change type: unsigned int, long, unsigned long, etc. Should be customizable!
-    unsigned long length;
+	unsigned long length;
 
-    if(true){
-        oldValue[0]=0x60;
-        oldValue[1]=0xa2;
-        oldValue[2]=0x00;
-        oldValue[3]=0x91;
-        oldValue[4]=0x7f;
-        oldValue[5]=0x96;
-        oldValue[6]=0x00;
-        oldValue[7]=0xb9;
-        length=8;
-        printf("test:%lu\n",length);
-    }
-    while (mach_vm_region(task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object_name) == KERN_SUCCESS)
+	if(true){
+		oldValue[0]=0x60;
+		oldValue[1]=0xa2;
+		oldValue[2]=0x00;
+		oldValue[3]=0x91;
+		oldValue[4]=0x7f;
+		oldValue[5]=0x96;
+		oldValue[6]=0x00;
+		oldValue[7]=0xb9;
+		length=8;
+		printf("test:%lu\n",length);
+	}
+	while (mach_vm_region(task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object_name) == KERN_SUCCESS)
 	{
 		//NSLog(@"mach_vm_region success");
 		pointer_t buffer;
@@ -161,22 +179,21 @@ void unity(){
 	
 
 
-    if(true){
-        oldValue[0]=0x08;
-        oldValue[1]=0x20;
-        oldValue[2]=0x20;
-        oldValue[3]=0x1e;
-        oldValue[4]=0x6b;
-        oldValue[5]=0x00;
-        oldValue[6]=0x00;
-        oldValue[7]=0x54;
-        oldValue[8]=0x00;
-        oldValue[9]=0xcc;
-        oldValue[10]=0x00;
-        length=11;
-        printf("test2:%lu\n",length);
-    }
-	
+	if(true){
+		oldValue[0]=0x08;
+		oldValue[1]=0x20;
+		oldValue[2]=0x20;
+		oldValue[3]=0x1e;
+		oldValue[4]=0x6b;
+		oldValue[5]=0x00;
+		oldValue[6]=0x00;
+		oldValue[7]=0x54;
+		oldValue[8]=0x00;
+		oldValue[9]=0xcc;
+		oldValue[10]=0x00;
+		length=11;
+		printf("test2:%lu\n",length);
+	}
 	while (mach_vm_region(task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object_name) == KERN_SUCCESS)
 	{
 		//NSLog(@"mach_vm_region success");
@@ -205,14 +222,15 @@ void unity(){
 	
 	if (flag1&&flag2){
 		//loc1=_dyld_get_image_vmaddr_slide(0) +0x10177e980;
-		MSHookFunction((void *)loc1, (void *)my_time_init, (void **)&orig_time_init);
-
 		//loc2=_dyld_get_image_vmaddr_slide(0) +0x10177edf8;
+		MSHookFunction((void *)loc1, (void *)my_time_init, (void **)&orig_time_init);
 		MSHookFunction((void *)loc2, (void *)my_time_scale, (void **)&orig_time_scale);
-
+		NSLog(@"hook time_init/scale success");
+		return true;
 	}
 	else{
-		NSLog(@"failed: %d, %d",flag1,flag2);
+		NSLog(@"hook time_init/scale failed: %d, %d",flag1,flag2);
+		return false;
 	}
 }
 
@@ -223,56 +241,80 @@ void unity(){
 	BOOL ret=%orig(application,launchOptions);
 	NSLog(@"UnityAppController hooked");
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
-			rate_i=(rate_i+1)%rate_count;
-			orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
-			NSLog(@"Now rates:%f",rates[rate_i]);
-        }];
+		rate_i=(rate_i+1)%rate_count;
+		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
+		NSLog(@"Now rates:%f",rates[rate_i]);
+	}];
 
 	return ret;
 }
-
 %end //UnityAppController
+%end //unity
+
+%group cocos2d
+%hook AppController
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
+	BOOL ret=%orig(application,launchOptions);
+	NSLog(@"AppController hooked");
+	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
+		rate_i=(rate_i+1)%rate_count;
+		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
+		NSLog(@"Now rates:%f",rates[rate_i]);
+	}];
+
+	return ret;
+}
+%end //AppController
+%end //cocos2d
 
 %hook UIWindow
 - (void)bringSubviewToFront:(UIView *)view{
 	%orig;
 	if(button&&view!=button)
-	[self bringSubviewToFront:button];
+		[self bringSubviewToFront:button];
 }
 - (void)addSubview:(UIView *)view{
 	%orig;
 	if(button&&view!=button)
-	[self bringSubviewToFront:button];
+		[self bringSubviewToFront:button];
 }
 %end //UIWindow
 
-%end //unity
-
 %ctor {
 	NSLog(@"construct");
+	NSLog(@"ASLR=0x%lx",_dyld_get_image_vmaddr_slide(0));
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"];
-    for(int i=0;i<3;i++){
-    	NSString *key=[[NSString alloc] initWithFormat:@"rate%d",i+1];
-    	NSString *item=prefs[key];
-    	if(item){
-    		float rate=[item floatValue];
-    		if(rate&&rate<100.0&&rate!=1.0){
-    			rates[rate_count++]=rate;
-    		}
-    	}
-    }
-
-    if(rate_count){
-    	rates[rate_count++]=1.0;
-    	NSLog(@"rates:%f, %f. num=%d",rates[0],rates[1],rate_count);
-		if (objc_getClass("UnityAppController")) {
-			NSLog(@"Unity app");
-			%init(unity);
-			unity();
-		}
-		else if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")){
-			NSLog(@"cocos2d app");
-			cocos2d();
+	if(prefs){
+		NSString* bundleIdentifier=[[NSBundle mainBundle] bundleIdentifier];
+		NSArray *apps=prefs[@"apps"];
+		BOOL enabled=prefs[@"enabled"];
+		if(apps&&enabled==YES)
+			if([apps containsObject:bundleIdentifier]){
+				for(int i=0;i<3;i++){
+					NSString *key=[[NSString alloc] initWithFormat:@"rate%d",i+1];
+					NSString *item=prefs[key];
+					if(item){
+						float rate=[item floatValue];
+						if(rate&&rate<100.0&&rate!=1.0){
+							rates[rate_count++]=rate;
+						}
+					}
+				}		
+				if(rate_count){
+					rates[rate_count++]=1.0;
+					NSLog(@"rates:%f, %f, %f. num=%d",rates[0],rates[1],rates[2],rate_count);
+					%init(_ungrouped)
+					if (objc_getClass("UnityAppController")) {
+						NSLog(@"Unity app");
+						%init(unity);
+						if(!unity()) cocos2d();
+					}
+					else if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")){
+						NSLog(@"cocos2d app");
+						%init(cocos2d);
+						cocos2d();
+					}
+				}
+			}
 		}
 	}
-}

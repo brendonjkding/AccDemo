@@ -1,9 +1,9 @@
 Package: com.brend0n.accdemo
 Name: accDemo
-Depends: mobilesubstrate
-Version: 0.0.1
+Depends: mobilesubstrate,preferenceloader,com.spark.libsparkapplist
+Version: 0.0.2
 Architecture: iphoneos-arm
-Description: An awesome MobileSubstrate tweak!
+Description: unity/cocos2d game accelerator
 Maintainer: Brendon
 Author: Brendon
 Section: Tweaks

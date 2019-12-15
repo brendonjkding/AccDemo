@@ -83,10 +83,6 @@ static WQSuspendView *_suspendView;
         //边框颜色
         _suspendView.layer.borderColor = [UIColor whiteColor].CGColor;
         
-        CGRect screenRect = [_suspendView bounds];
-        CGFloat width = screenRect.size.width;
-        CGFloat height = screenRect.size.height;
-        NSLog(@"width:%lf, height:%lf",width,height);
         UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake(3,-2,34,40)];
         label.text=@"switch";
         label.textColor=[UIColor whiteColor];

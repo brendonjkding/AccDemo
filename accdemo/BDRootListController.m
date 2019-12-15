@@ -1,4 +1,5 @@
 #include "BDRootListController.h"
+#import <SparkAppList/SparkAppListTableViewController.h>
 
 @implementation BDRootListController
 
@@ -9,5 +10,9 @@
 
 	return _specifiers;
 }
-
+- (void)selectApp{
+    SparkAppListTableViewController* s = [[SparkAppListTableViewController alloc] initWithIdentifier:@"com.brend0n.accdemo" andKey:@"apps"];
+    [self.navigationController pushViewController:s animated:YES];
+    self.navigationItem.hidesBackButton = FALSE;
+}
 @end
