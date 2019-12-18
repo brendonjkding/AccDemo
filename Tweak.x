@@ -1,12 +1,14 @@
 #import <substrate.h>
 #import <time.h>
+#import <Foundation/Foundation.h>
 #import "WQSuspendView.h"
+#import "WHToast/WHToast.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <mach/mach.h>
 #include <sys/sysctl.h>
-#import <Foundation/Foundation.h>
+
 extern kern_return_t
 mach_vm_read(
 	vm_map_t		map,
@@ -35,10 +37,16 @@ mach_vm_region(
 extern kern_return_t mach_vm_protect(vm_map_t, mach_vm_address_t, mach_vm_size_t, boolean_t, vm_prot_t);
 extern intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 
+#define AUTO 0
+#define GETTIMEOFDAY 1
+#define CLOCKGETTIME 2
+
 float rates[4];
 int rate_i=0;
 int rate_count=0;
-
+bool toast=0;
+bool enabled=0;
+int mode=0;
 
 time_t pre_sec=0;
 time_t true_pre_sec=0;
@@ -70,6 +78,31 @@ static int mygettimeofday(struct timeval*tv,struct timezone *tz ) {
 	return ret;
 }
 
+static int (*orig_clock_gettime)(clockid_t clk_id, struct timespec *tp);
+static int myclock_gettime(clockid_t clk_id, struct timespec *tp){
+    int ret=orig_clock_gettime(clk_id,tp);
+    if(!ret){
+        if(!pre_sec){
+			pre_sec=tp->tv_sec;
+			true_pre_sec=tp->tv_sec;
+			pre_usec=tp->tv_nsec;
+			true_pre_usec=tp->tv_nsec;
+		}
+		else{
+			time_t used_sec = pre_sec + (tp->tv_sec - true_pre_sec) * rates[rate_i];
+			suseconds_t used_usec = pre_usec + (tp->tv_nsec - true_pre_usec) * rates[rate_i];
+			true_pre_sec = tp->tv_sec;
+			true_pre_usec = tp->tv_nsec;
+			tp->tv_sec = used_sec;
+			tp->tv_nsec = used_usec;
+			pre_sec = used_sec;
+			pre_usec = used_usec;
+
+		}
+    }
+    return ret;
+}
+
 WQSuspendView *button=0;
 float orig_scale=0;
 long scale_arg1=0;
@@ -97,11 +130,9 @@ void my_time_scale(long arg1,float arg2){
 	
 	
 	// float* p=(float*)(arg1+0xcc);
-	// float scale=*p;
-	// NSLog(@"scale:%f",scale);
 }
 
-bool cocos2d(){
+bool hook_gettimeofday(){
 	void* gettimeofday=(void *)MSFindSymbol(NULL,"_gettimeofday");
 	if(gettimeofday) {
 		MSHookFunction(gettimeofday, (void *)mygettimeofday, (void **)&orig_gettimeofday);
@@ -113,8 +144,20 @@ bool cocos2d(){
 		return false;
 	}
 }
+bool hook_clock_gettime(){
+	void* clock_gettime=(void *)MSFindSymbol(NULL,"_clock_gettime");
+	if(clock_gettime) {
+		MSHookFunction(clock_gettime, (void *)myclock_gettime, (void **)&orig_clock_gettime);
+		NSLog(@"hook clock_gettime success");
+		return true;
+	}
+	else {
+		NSLog(@"hook clock_gettime failed");
+		return false;
+	}
+}
 
-bool unity(){
+bool hook_time_scale(){
 	bool flag1=0,flag2=0;
 	kern_return_t kret;
 	mach_port_t task=mach_task_self(); // type vm_map_t = mach_port_t in mach_types.defs
@@ -244,6 +287,7 @@ bool unity(){
 		rate_i=(rate_i+1)%rate_count;
 		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
 		NSLog(@"Now rates:%f",rates[rate_i]);
+		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
 	}];
 
 	return ret;
@@ -255,16 +299,32 @@ bool unity(){
 %hook AppController
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
 	BOOL ret=%orig(application,launchOptions);
+	if(button) return ret;
 	NSLog(@"AppController hooked");
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
-		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
 		NSLog(@"Now rates:%f",rates[rate_i]);
+		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
 	}];
 
 	return ret;
 }
 %end //AppController
+
+%hook AppDelegate
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
+	BOOL ret=%orig(application,launchOptions);
+	if(button) return ret;
+	NSLog(@"AppDelegate hooked");
+	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
+		rate_i=(rate_i+1)%rate_count;
+		NSLog(@"Now rates:%f",rates[rate_i]);
+		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
+	}];
+
+	return ret;
+}
+%end //AppDelegate
 %end //cocos2d
 
 %hook UIWindow
@@ -281,15 +341,21 @@ bool unity(){
 %end //UIWindow
 
 %ctor {
-	NSLog(@"construct");
-	NSLog(@"ASLR=0x%lx",_dyld_get_image_vmaddr_slide(0));
+	NSLog(@"construct--------------------------------------");
+
+	//prefs
+	NSString* bundleIdentifier=[[NSBundle mainBundle] bundleIdentifier];
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"];
-	if(prefs){
-		NSString* bundleIdentifier=[[NSBundle mainBundle] bundleIdentifier];
+	if(prefs){	
 		NSArray *apps=prefs[@"apps"];
-		BOOL enabled=prefs[@"enabled"];
-		if(apps&&enabled==YES)
+		enabled=[prefs[@"enabled"] boolValue]==YES?1:0;
+		toast=[prefs[@"toast"] boolValue]==YES?1:0;
+		mode=[prefs[@"mode"] intValue];
+		if(apps&&enabled)
 			if([apps containsObject:bundleIdentifier]){
+				NSLog(@"ASLR=0x%lx",_dyld_get_image_vmaddr_slide(0));
+				NSLog(@"app:%@",bundleIdentifier);
+				NSLog(@"mode(1-3):%d",mode+1);
 				for(int i=0;i<3;i++){
 					NSString *key=[[NSString alloc] initWithFormat:@"rate%d",i+1];
 					NSString *item=prefs[key];
@@ -303,18 +369,27 @@ bool unity(){
 				if(rate_count){
 					rates[rate_count++]=1.0;
 					NSLog(@"rates:%f, %f, %f. num=%d",rates[0],rates[1],rates[2],rate_count);
-					%init(_ungrouped)
+					%init(_ungrouped);
+					
+
 					if (objc_getClass("UnityAppController")) {
 						NSLog(@"Unity app");
 						%init(unity);
-						if(!unity()) cocos2d();
+						if(mode==AUTO) {if(!hook_time_scale()) hook_gettimeofday();}
+						else if(mode==GETTIMEOFDAY) hook_gettimeofday();
+						else if(mode==CLOCKGETTIME) hook_clock_gettime();
 					}
 					else if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")){
 						NSLog(@"cocos2d app");
 						%init(cocos2d);
-						cocos2d();
+						if(mode==AUTO) {if(!hook_gettimeofday()) hook_clock_gettime();}
+						else if(mode==GETTIMEOFDAY) hook_gettimeofday();
+						else if(mode==CLOCKGETTIME) hook_clock_gettime();
 					}
+					
 				}
+
 			}
+			
 		}
 	}
