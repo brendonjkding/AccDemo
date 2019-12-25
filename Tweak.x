@@ -49,10 +49,11 @@ bool enabled=0;
 int mode=0;
 
 time_t pre_sec=0;
-time_t true_pre_sec=0;
 suseconds_t pre_usec=0;
+time_t true_pre_sec=0;
 suseconds_t true_pre_usec=0;
 
+#define USec_Scale (1000000LL)
 static int (*orig_gettimeofday)(struct timeval * __restrict, void * __restrict);
 static int mygettimeofday(struct timeval*tv,struct timezone *tz ) {
 	int ret = orig_gettimeofday(tv,tz);
@@ -64,14 +65,29 @@ static int mygettimeofday(struct timeval*tv,struct timezone *tz ) {
 			true_pre_usec=tv->tv_usec;
 		}
 		else{
-			time_t used_sec = pre_sec + (tv->tv_sec - true_pre_sec) * rates[rate_i];
-			suseconds_t used_usec = pre_usec + (tv->tv_usec - true_pre_usec) * rates[rate_i];
+			int64_t true_curSec= tv->tv_sec*USec_Scale + tv->tv_usec;
+			int64_t true_preSec= true_pre_sec*USec_Scale + true_pre_usec;
+			int64_t invl=true_curSec-true_preSec;
+			invl*=rates[rate_i];
+			
+			int64_t curSec=pre_sec*USec_Scale + pre_usec;
+			curSec+=invl;
+
+			time_t used_sec = curSec/USec_Scale;
+			suseconds_t used_usec = curSec%USec_Scale;
+
+
+
+			// time_t used_sec = pre_sec + (tv->tv_sec - true_pre_sec) * rates[rate_i];
+			// suseconds_t used_usec = pre_usec + (tv->tv_usec - true_pre_usec) * rates[rate_i];
 			true_pre_sec = tv->tv_sec;
 			true_pre_usec = tv->tv_usec;
 			tv->tv_sec = used_sec;
 			tv->tv_usec = used_usec;
 			pre_sec = used_sec;
 			pre_usec = used_usec;
+
+
 
 		}
 	}
@@ -89,8 +105,18 @@ static int myclock_gettime(clockid_t clk_id, struct timespec *tp){
 			true_pre_usec=tp->tv_nsec;
 		}
 		else{
-			time_t used_sec = pre_sec + (tp->tv_sec - true_pre_sec) * rates[rate_i];
-			suseconds_t used_usec = pre_usec + (tp->tv_nsec - true_pre_usec) * rates[rate_i];
+			int64_t true_curSec= tp->tv_sec*USec_Scale + tp->tv_nsec;
+			int64_t true_preSec= true_pre_sec*USec_Scale + true_pre_usec;
+			int64_t invl=true_curSec-true_preSec;
+			invl*=rates[rate_i];
+			
+			int64_t curSec=pre_sec*USec_Scale + pre_usec;
+			curSec+=invl;
+
+			time_t used_sec = curSec/USec_Scale;
+			suseconds_t used_usec = curSec%USec_Scale;
+			// time_t used_sec = pre_sec + (tp->tv_sec - true_pre_sec) * rates[rate_i];
+			// suseconds_t used_usec = pre_usec + (tp->tv_nsec - true_pre_usec) * rates[rate_i];
 			true_pre_sec = tp->tv_sec;
 			true_pre_usec = tp->tv_nsec;
 			tp->tv_sec = used_sec;
@@ -122,7 +148,7 @@ void my_time_scale(long arg1,float arg2){
 	
 	if(!scale_arg1) scale_arg1=arg1;
 	if(!orig_scale&&arg2) orig_scale=arg2;
-	if(arg2) arg2=orig_scale*rates[rate_i];
+	if(arg2&&arg2!=1.0) arg2=orig_scale*rates[rate_i];
 	else orig_scale=0;
 	orig_time_scale(arg1,arg2);
 

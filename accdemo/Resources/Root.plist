@@ -112,14 +112,7 @@
 			<key>label</key>
 			<string>选择启用的游戏</string>
 		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>选择启用的游戏</string>
-			<key>action</key>
-			<string>selectApp</string>
-		</dict>
+		
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
@@ -143,7 +136,22 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>设置完点左上角返回并完全重启游戏才会生效</string>
+			<string>设置完点左上角返回再重新进来设置以下选项</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>选择启用的游戏</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>选择启用的游戏</string>
+			<key>action</key>
+			<string>selectApp</string>
 		</dict>
 	</array>
 	<key>title</key>
