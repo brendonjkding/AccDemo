@@ -46,6 +46,7 @@ int rate_i=0;
 int rate_count=0;
 bool toast=0;
 bool enabled=0;
+bool buttonEnabled=0;
 int mode=0;
 
 time_t pre_sec=0;
@@ -148,7 +149,7 @@ void my_time_scale(long arg1,float arg2){
 	
 	if(!scale_arg1) scale_arg1=arg1;
 	if(!orig_scale&&arg2) orig_scale=arg2;
-	if(arg2&&arg2!=1.0) arg2=orig_scale*rates[rate_i];
+	if(arg2) arg2=orig_scale*rates[rate_i];
 	else orig_scale=0;
 	orig_time_scale(arg1,arg2);
 
@@ -309,6 +310,7 @@ bool hook_time_scale(){
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
 	BOOL ret=%orig(application,launchOptions);
 	NSLog(@"UnityAppController hooked");
+	if(button||!buttonEnabled) return ret;
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
 		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
@@ -325,7 +327,7 @@ bool hook_time_scale(){
 %hook AppController
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
 	BOOL ret=%orig(application,launchOptions);
-	if(button) return ret;
+	if(button||!buttonEnabled) return ret;
 	NSLog(@"AppController hooked");
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
@@ -340,7 +342,7 @@ bool hook_time_scale(){
 %hook AppDelegate
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
 	BOOL ret=%orig(application,launchOptions);
-	if(button) return ret;
+	if(button||!buttonEnabled) return ret;
 	NSLog(@"AppDelegate hooked");
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
@@ -376,7 +378,9 @@ bool hook_time_scale(){
 		NSArray *apps=prefs[@"apps"];
 		enabled=[prefs[@"enabled"] boolValue]==YES?1:0;
 		toast=[prefs[@"toast"] boolValue]==YES?1:0;
+		buttonEnabled=[prefs[@"buttonEnabled"] boolValue]==YES?1:0;
 		mode=[prefs[@"mode"] intValue];
+
 		if(apps&&enabled)
 			if([apps containsObject:bundleIdentifier]){
 				NSLog(@"ASLR=0x%lx",_dyld_get_image_vmaddr_slide(0));

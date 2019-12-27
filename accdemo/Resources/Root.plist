@@ -104,15 +104,26 @@
 			<key>label</key>
 			<string>可输入多个速度，游戏中按下按钮会在启用的速度和原速度之间切换，填1则不启用</string>
 		</dict>
-
-
+		
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>选择启用的游戏</string>
+			<string>是否启用悬浮按钮</string>
 		</dict>
-		
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.brend0n.accdemo</string>
+			<key>key</key>
+			<string>buttonEnabled</string>
+			<key>label</key>
+			<string>悬浮按钮</string>
+		</dict>
+
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
