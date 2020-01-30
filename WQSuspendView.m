@@ -92,6 +92,11 @@ static WQSuspendView *_suspendView;
     if (!_suspendView.superview) {
         [[UIApplication sharedApplication].keyWindow addSubview:_suspendView];
         [[UIApplication sharedApplication].keyWindow bringSubviewToFront:_suspendView];
+        if (!_suspendView.superview) {
+            [[[[UIApplication sharedApplication] delegate] window] addSubview:_suspendView];
+            [[[[UIApplication sharedApplication] delegate] window] bringSubviewToFront:_suspendView];
+            
+        }
     }
     return _suspendView;
 }
