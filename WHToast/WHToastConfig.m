@@ -14,6 +14,8 @@ static CGFloat toast_cornerRadius = 7;
 static CGFloat toast_fontSize = 15;
 static CGFloat toast_imageCornerRadius = 0;
 
+
+
 @implementation WHToastConfig
 
 static id _instance;

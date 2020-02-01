@@ -25,7 +25,8 @@ static inline BOOL Toast_isIphoneX() {
         return result;
     }
     if (@available(iOS 11.0, *)) {
-        UIWindow *mainWindow = [[[UIApplication sharedApplication] delegate] window];
+//        UIWindow *mainWindow = [[[UIApplication sharedApplication] delegate] window];
+        UIWindow *mainWindow = [[UIApplication sharedApplication] keyWindow];
         if (mainWindow.safeAreaInsets.bottom > 0.0) {
             result = YES;
         }

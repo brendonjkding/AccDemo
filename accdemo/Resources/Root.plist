@@ -128,7 +128,7 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>切换速度时是否弹出提示框(某些app开启可能导致闪退)</string>
+			<string>切换速度时是否弹出提示框</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -143,12 +143,6 @@
 			<string>提示框</string>
 		</dict>
 
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>label</key>
-			<string>设置完点左上角返回再重新进来设置以下选项</string>
-		</dict>
 
 		<dict>
 			<key>cell</key>
