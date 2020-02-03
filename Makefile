@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = accDemo
 accDemo_FILES = Tweak.x WQSuspendView.m $(wildcard WHToast/*.m) readmem/readmem.m
-accDemo_CFLAGS = -fobjc-arc
+accDemo_CFLAGS = -fobjc-arc -Wno-unused-variable
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += accdemo

@@ -48,9 +48,6 @@ static int mygettimeofday(struct timeval*tv,struct timezone *tz ) {
 			time_t used_sec = curSec/USec_Scale;
 			suseconds_t used_usec = curSec%USec_Scale;
 
-
-			// time_t used_sec = pre_sec + (tv->tv_sec - true_pre_sec) * rates[rate_i];
-			// suseconds_t used_usec = pre_usec + (tv->tv_usec - true_pre_usec) * rates[rate_i];
 			true_pre_sec = tv->tv_sec;
 			true_pre_usec = tv->tv_usec;
 			tv->tv_sec = used_sec;
@@ -84,8 +81,7 @@ static int myclock_gettime(clockid_t clk_id, struct timespec *tp){
 
 			time_t used_sec = curSec/USec_Scale;
 			suseconds_t used_usec = curSec%USec_Scale;
-			// time_t used_sec = pre_sec + (tp->tv_sec - true_pre_sec) * rates[rate_i];
-			// suseconds_t used_usec = pre_usec + (tp->tv_nsec - true_pre_usec) * rates[rate_i];
+
 			true_pre_sec = tp->tv_sec;
 			true_pre_usec = tp->tv_nsec;
 			tp->tv_sec = used_sec;
@@ -101,6 +97,14 @@ static int myclock_gettime(clockid_t clk_id, struct timespec *tp){
 WQSuspendView *button=0;
 float orig_scale=0;
 long scale_arg1=0;
+float last_scale=1;
+// float cur_scale=1;
+
+static long (*orig_get_scale)(void);
+float my_get_scale(void){
+	// NSLog(@"my scale called");
+	return last_scale;
+}
 
 static long (*orig_time_init)(long arg1,long arg2, long arg3, long arg4, long arg5);
 long my_time_init(long arg1,long arg2, long arg3, long arg4, long arg5){
@@ -112,7 +116,7 @@ long my_time_init(long arg1,long arg2, long arg3, long arg4, long arg5){
 	return orig_time_init(arg1,arg2,arg3,arg4,arg5);
 }
 
-static void (*orig_time_scale)(long arg1,float arg2);
+static void (*orig_time_scale)(long arg1,float arg2)=0;
 void my_time_scale(long arg1,float arg2){
 	NSLog(@"my_time_scale called");
 	NSLog(@"scale:%f",arg2);
@@ -125,6 +129,8 @@ void my_time_scale(long arg1,float arg2){
 
 	NSLog(@"used scale:%f",arg2);
 	
+	last_scale=arg2;
+
 	// NSLog(@"%lx",arg1);
 	// float* p=(float*)(arg1+0xcc);
 }
@@ -159,7 +165,7 @@ long is_time_init(long buffer,int size,long pc){
 		for(int j=4;j<0x78;j+=4){
 			if((*(uint16_t*)(buffer-j))==0x4ff4){
 				long ad=pc-j;
-				NSLog(@"time_init:0x%lx",ad);
+				NSLog(@"time_init:0x%lx",ad-aslr);
 				return ad;
 			}
 		}
@@ -170,7 +176,7 @@ long is_time_scale(long buffer,int size,long pc){
 	if(size<11) return 0;
 	if((*(uint64_t*)(buffer))==0x5400006b1e202008&&(*(uint16_t*)(buffer+8))==0xcc00&&(*(char*)(buffer+10))==0x00){
 		long ad=pc-0x10;
-		NSLog(@"time_scale:0x%lx",ad);
+		NSLog(@"time_scale:0x%lx",ad-aslr);
 		return ad;
 	}
 	return 0;
@@ -179,7 +185,7 @@ long is_time_init_18(long buffer,int size,long pc){
 	if(size<20)return 0;
 	if((*(uint64_t*)(buffer))==0xf900026891004108&&(*(uint64_t*)(buffer+8))==0xa9037e7fb9005a7f&&(*(uint32_t*)(buffer+16))==0xb9007a7f){
 		long ad=pc-0x24;
-		NSLog(@"time_init_18:0x%lx",ad);
+		NSLog(@"time_init_18:0x%lx",ad-aslr);
 		return ad;
 	}
 	return 0;
@@ -188,7 +194,13 @@ long is_time_scale_18(long buffer,int size,long pc){
 	if(size<8) return 0;
 	if((*(uint32_t*)(buffer))==0x1e202008&&(*(uint32_t*)(buffer+8))==0xf90003ff){
 		long ad=pc-0x20;
-		NSLog(@"time_scale_18:0x%lx",ad);
+		NSLog(@"time_scale_18:0x%lx",ad-aslr);
+		return ad;
+	}
+	if(size<10) return 0;
+	if((*(uint64_t*)(buffer))==0x5400006b1e202008&&(*(uint8_t*)(buffer+8))==0x00&&(*(char*)(buffer+10))==0x00){
+		long ad=pc-0x10;
+		NSLog(@"time_scale:0x%lx",ad-aslr);
 		return ad;
 	}
 	return 0;
@@ -248,61 +260,35 @@ bool hook_time_scale(){
 	NSLog(@"10. time_init:0x%0lx, time_scale:0x%0lx",time_init-aslr, time_scale-aslr);
 	MSHookFunction((void *)time_init, (void *)my_time_init, (void **)&orig_time_init);
 	MSHookFunction((void *)time_scale, (void *)my_time_scale, (void **)&orig_time_scale);
+	// MSHookFunction((void *)aslr+0x10251938c, (void *)my_get_scale, (void **)&orig_get_scale);
 	NSLog(@"11. hook time_init/scale success");
 	return true;
 	
 }
-
-
-%group unity
-%hook UnityAppController
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
-	BOOL ret=%orig(application,launchOptions);
-	NSLog(@"12. UnityAppController hooked");
+BOOL (*orig_application_didFinishLaunchingWithOptions)(id self, SEL _cmd,UIApplication* application,NSDictionary*launchOptions );
+BOOL new_application_didFinishLaunchingWithOptions(id self, SEL _cmd,UIApplication* application,NSDictionary*launchOptions ){
+	NSLog(@"12. %@ hooked", [self class]);
+	BOOL ret=orig_application_didFinishLaunchingWithOptions(self, @selector(application:didFinishLaunchingWithOptions:),application,launchOptions);
 	if(button||!buttonEnabled) return ret;
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
 		NSLog(@"Now rates:%f",rates[rate_i]);
-		orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
+		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
 		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
 	}];
-
 	return ret;
 }
-%end //UnityAppController
-%end //unity
-
-%group cocos2d
-%hook AppController
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
-	BOOL ret=%orig(application,launchOptions);
-	if(button||!buttonEnabled) return ret;
-	NSLog(@"12. AppController hooked");
-	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
-		rate_i=(rate_i+1)%rate_count;
-		NSLog(@"Now rates:%f",rates[rate_i]);
-		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
-	}];
-
-	return ret;
+%hook UIApplication
+-(void) setDelegate:(id) delegate{
+	// NSLog(@"setDelegate hooked");
+	const char*class_name=[[NSString stringWithFormat:@"%@",[delegate class]] UTF8String];
+	MSHookMessageEx(objc_getClass(class_name),
+					@selector(application:didFinishLaunchingWithOptions:),
+					(IMP)&new_application_didFinishLaunchingWithOptions,
+					(IMP*)&orig_application_didFinishLaunchingWithOptions);
+	%orig;
 }
-%end //AppController
-
-%hook AppDelegate
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions{
-	BOOL ret=%orig(application,launchOptions);
-	if(button||!buttonEnabled) return ret;
-	NSLog(@"12. AppDelegate hooked");
-	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
-		rate_i=(rate_i+1)%rate_count;
-		NSLog(@"Now rates:%f",rates[rate_i]);
-		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
-	}];
-
-	return ret;
-}
-%end //AppDelegate
-%end //cocos2d
+%end
 
 %hook UIWindow
 - (void)bringSubviewToFront:(UIView *)view{
@@ -357,24 +343,16 @@ bool loadPref(){
 		%init(_ungrouped);
 		if (objc_getClass("UnityAppController")) {
 			NSLog(@"7. Unity app");
-			%init(unity);
 			if(mode==AUTO) {if(!hook_time_scale()) hook_gettimeofday();}
 			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
 			else if(mode==CLOCKGETTIME) hook_clock_gettime();
 		}
-		else if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")){
-			NSLog(@"7. cocos2d app");
-			%init(cocos2d);
-			if(mode==AUTO) {if(!hook_gettimeofday()) hook_clock_gettime();}
-			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
-			else if(mode==CLOCKGETTIME) hook_clock_gettime();
-		}
 		else{
-			NSLog(@"7. other app");
+			if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")) NSLog(@"7. cocos2d app");
+			else  NSLog(@"7. other app");
 			if(mode==AUTO) {if(!hook_gettimeofday()) hook_clock_gettime();}
 			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
 			else if(mode==CLOCKGETTIME) hook_clock_gettime();
 		}
-		
 	}
 }
