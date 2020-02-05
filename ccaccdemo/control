@@ -1,0 +1,9 @@
+Package: com.brend0n.ccaccdemo
+Name: CCaccdemo
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome Control Center module!
+Maintainer: Brendon
+Author: Brendon
+Section: Control Center (Modules)

@@ -55,6 +55,30 @@
 				<integer>2</integer>
 			</array>
 		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>选择启用的游戏</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>选择启用的游戏</string>
+			<key>action</key>
+			<string>selectApp</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>(以上选项重启游戏后生效)</string>
+		</dict>
+
+
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
@@ -73,6 +97,8 @@
 			<string>rate1</string>
 			<key>isDecimalPad</key>
 			<true/>
+			<key>PostNotification</key>
+			<string>com.brend0n.accDemo/loadPref</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -85,6 +111,8 @@
 			<string>rate2</string>
 			<key>isDecimalPad</key>
 			<true/>
+			<key>PostNotification</key>
+			<string>com.brend0n.accDemo/loadPref</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -97,6 +125,8 @@
 			<string>rate3</string>
 			<key>isDecimalPad</key>
 			<true/>
+			<key>PostNotification</key>
+			<string>com.brend0n.accDemo/loadPref</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -109,7 +139,7 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>是否启用悬浮按钮</string>
+			<string>是否启用悬浮按钮(控制中心也有开关)</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -122,6 +152,8 @@
 			<string>buttonEnabled</string>
 			<key>label</key>
 			<string>悬浮按钮</string>
+			<key>PostNotification</key>
+			<string>com.brend0n.accDemo/loadPref</string>
 		</dict>
 
 		<dict>
@@ -141,23 +173,12 @@
 			<string>toast</string>
 			<key>label</key>
 			<string>提示框</string>
+			<key>PostNotification</key>
+			<string>com.brend0n.accDemo/loadPref</string>
 		</dict>
 
 
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>label</key>
-			<string>选择启用的游戏</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>选择启用的游戏</string>
-			<key>action</key>
-			<string>selectApp</string>
-		</dict>
+		
 	</array>
 	<key>title</key>
 	<string>accDemo</string>

@@ -1,7 +1,8 @@
 #import <substrate.h>
 #import <time.h>
+#import <notify.h>
 
-#import "WQSuspendView.h"
+#import "WQSuspendView/WQSuspendView.h"
 #import "WHToast/WHToast.h"
 #import "readmem/readmem.h"
 
@@ -12,6 +13,7 @@ extern intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 #define CLOCKGETTIME 2
 
 long aslr;
+//conf
 float rates[4];
 int rate_i=0;
 int rate_count=0;
@@ -269,13 +271,13 @@ BOOL (*orig_application_didFinishLaunchingWithOptions)(id self, SEL _cmd,UIAppli
 BOOL new_application_didFinishLaunchingWithOptions(id self, SEL _cmd,UIApplication* application,NSDictionary*launchOptions ){
 	NSLog(@"12. %@ hooked", [self class]);
 	BOOL ret=orig_application_didFinishLaunchingWithOptions(self, @selector(application:didFinishLaunchingWithOptions:),application,launchOptions);
-	if(button||!buttonEnabled) return ret;
 	button=[WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
 		NSLog(@"Now rates:%f",rates[rate_i]);
 		if(orig_time_scale) orig_time_scale(scale_arg1,orig_scale*rates[rate_i]);
 		if(toast)[WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
 	}];
+	if(!buttonEnabled) [button setHidden:YES];
 	return ret;
 }
 %hook UIApplication
@@ -304,6 +306,7 @@ BOOL new_application_didFinishLaunchingWithOptions(id self, SEL _cmd,UIApplicati
 %end //UIWindow
 
 bool loadPref(){
+	NSLog(@"loading pref...");
 	NSString* bundleIdentifier=[[NSBundle mainBundle] bundleIdentifier];
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"];
 	
@@ -322,6 +325,8 @@ bool loadPref(){
 	NSLog(@"3. mode(1-3): %d",mode+1);
 	NSLog(@"4. button: %d",buttonEnabled);
 	NSLog(@"5. toast: %d",toast);
+	rate_i=0;
+	rate_count=0;
 	for(int i=0;i<3;i++){
 		NSString *key=[[NSString alloc] initWithFormat:@"rate%d",i+1];
 		NSString *item=prefs[key];
@@ -335,6 +340,8 @@ bool loadPref(){
 	if(!rate_count) return false;
 	rates[rate_count++]=1.0;
 	NSLog(@"6. rates:%f, %f, %f. num=%d",rates[0],rates[1],rates[2],rate_count);
+
+	if(button) [button setHidden:buttonEnabled?NO:YES];
 	return true;
 }
 %ctor {
@@ -354,5 +361,9 @@ bool loadPref(){
 			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
 			else if(mode==CLOCKGETTIME) hook_clock_gettime();
 		}
+		int token = 0;
+		notify_register_dispatch("com.brend0n.accDemo/loadPref", &token, dispatch_get_main_queue(), ^(int token) {
+    		loadPref();
+		});
 	}
 }
