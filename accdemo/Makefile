@@ -1,5 +1,5 @@
-TARGET = iphone:clang:11.2:11.0
-ARCHS= arm64
+#TARGET = iphone:clang:11.2:9.0
+ARCHS= arm64 arm64e
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = accDemo

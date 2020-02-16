@@ -199,10 +199,11 @@ long is_time_scale_18(long buffer,int size,long pc){
 		NSLog(@"time_scale_18:0x%lx",ad-aslr);
 		return ad;
 	}
+	//2017
 	if(size<10) return 0;
 	if((*(uint64_t*)(buffer))==0x5400006b1e202008&&(*(uint8_t*)(buffer+8))==0x00&&(*(char*)(buffer+10))==0x00){
 		long ad=pc-0x10;
-		NSLog(@"time_scale:0x%lx",ad-aslr);
+		NSLog(@"time_scale_17:0x%lx",ad-aslr);
 		return ad;
 	}
 	return 0;
@@ -337,7 +338,7 @@ bool loadPref(){
 			}
 		}
 	}
-	if(!rate_count) return false;
+	// if(!rate_count) return false;
 	rates[rate_count++]=1.0;
 	NSLog(@"6. rates:%f, %f, %f. num=%d",rates[0],rates[1],rates[2],rate_count);
 

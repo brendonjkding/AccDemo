@@ -1,6 +1,6 @@
-TARGET = iphone:clang:11.2:11.0
+TARGET = iphone:clang:11.2:9.0
 export TARGET_CODESIGN_FLAGS="-Sent.xml"
-ARCHS= arm64
+ARCHS= arm64 arm64e
 INSTALL_TARGET_PROCESSES = fatego ProductName GameDemo-mobile
 
 include $(THEOS)/makefiles/common.mk

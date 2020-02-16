@@ -1,7 +1,7 @@
 include $(THEOS)/makefiles/common.mk
 
 export TARGET = iphone:clang:11.2:11.0
-export ARCHS = arm64
+export ARCHS = arm64 arm64e
 
 BUNDLE_NAME = CCaccdemo
 CCaccdemo_BUNDLE_EXTENSION = bundle
