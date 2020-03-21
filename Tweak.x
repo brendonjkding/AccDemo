@@ -11,6 +11,7 @@ extern intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 #define AUTO 0
 #define GETTIMEOFDAY 1
 #define CLOCKGETTIME 2
+#define MIX 3
 
 long aslr;
 //conf
@@ -354,6 +355,7 @@ bool loadPref(){
 			if(mode==AUTO) {if(!hook_time_scale()) hook_gettimeofday();}
 			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
 			else if(mode==CLOCKGETTIME) hook_clock_gettime();
+			else if(mode==MIX) hook_time_scale()&&hook_gettimeofday();
 		}
 		else{
 			if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")) NSLog(@"7. cocos2d app");

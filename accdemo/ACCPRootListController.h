@@ -2,6 +2,6 @@
 #import <SparkAppList/SparkAppListTableViewController.h>
 #import <Preferences/PSSpecifier.h>
 
-@interface BDRootListController : PSListController
+@interface ACCPRootListController : PSListController
 
 @end

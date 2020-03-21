@@ -4,6 +4,6 @@ Depends: mobilesubstrate,preferenceloader,com.spark.libsparkapplist,com.opa334.c
 Version: 0.0.6
 Architecture: iphoneos-arm
 Description: unity/cocos2d game accelerator
-Maintainer: Brendon
-Author: Brendon
+Maintainer: Brend0n <brendonjkding@126.com>
+Author: Brend0n <brendonjkding@126.com>
 Section: Tweaks
