@@ -162,82 +162,54 @@ bool hook_clock_gettime(){
 		return false;
 	}
 }
-long is_time_init(long buffer,int size,long pc){
-	if(size<8)return 0;
-	if((*(uint64_t*)(buffer))==0xb900967f9100a260){
-		for(int j=4;j<0x78;j+=4){
-			if((*(uint16_t*)(buffer-j))==0x4ff4){
-				long ad=pc-j;
-				NSLog(@"time_init:0x%lx",ad-aslr);
-				return ad;
-			}
-		}
-	}
-	return 0;
-}
-long is_time_scale(long buffer,int size,long pc){
-	if(size<11) return 0;
-	if((*(uint64_t*)(buffer))==0x5400006b1e202008&&(*(uint16_t*)(buffer+8))==0xcc00&&(*(char*)(buffer+10))==0x00){
-		long ad=pc-0x10;
-		NSLog(@"time_scale:0x%lx",ad-aslr);
-		return ad;
-	}
-	return 0;
-}
-long is_time_init_18(long buffer,int size,long pc){
-	if(size<20)return 0;
-	if((*(uint64_t*)(buffer))==0xf900026891004108&&(*(uint64_t*)(buffer+8))==0xa9037e7fb9005a7f&&(*(uint32_t*)(buffer+16))==0xb9007a7f){
-		long ad=pc-0x24;
-		NSLog(@"time_init_18:0x%lx",ad-aslr);
-		return ad;
-	}
-	return 0;
-}
-long is_time_scale_18(long buffer,int size,long pc){
-	if(size<8) return 0;
-	if((*(uint32_t*)(buffer))==0x1e202008&&(*(uint32_t*)(buffer+8))==0xf90003ff){
-		long ad=pc-0x20;
-		NSLog(@"time_scale_18:0x%lx",ad-aslr);
-		return ad;
-	}
-	//2017
-	if(size<10) return 0;
-	if((*(uint64_t*)(buffer))==0x5400006b1e202008&&(*(uint8_t*)(buffer+8))==0x00&&(*(char*)(buffer+10))==0x00){
-		long ad=pc-0x10;
-		NSLog(@"time_scale_17:0x%lx",ad-aslr);
-		return ad;
-	}
-	return 0;
-}
 
 mach_vm_offset_t main_address=0;
 long main_size=0;
-long scan(long (*op)(long,int,long)){
-	kern_return_t kret;
-	mach_port_t task=mach_task_self(); // type vm_map_t = mach_port_t in mach_types.defs
-	mach_vm_offset_t address = 0;
-	mach_vm_size_t size;
-	mach_port_t object_name;
-	vm_region_basic_info_data_64_t info;
-	mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT_64;
-
-	address=main_address;
-	while (mach_vm_region(task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object_name) == KERN_SUCCESS)
-	{
-		if(address-main_address>main_size) break;
-		NSLog(@"mach_vm_region ad:0x%llx, %llu",address-aslr,size);
-		pointer_t buffer;
-		mach_msg_type_number_t bufferSize = size;
-		if ((kret = mach_vm_read(task, (mach_vm_address_t)address, size, &buffer, &bufferSize)) == KERN_SUCCESS)
-		{
-			for(int i=0;i<size;i++){
-				long ad=op(buffer+i,size-i,address+i);
-				if(ad) return ad;
-			}	
+long search_time_init(){
+	for(long ad=main_address;ad<main_address+main_size;ad++){
+		if((*(uint64_t*)(ad))==0xb900967f9100a260){
+			for(int j=4;j<0x78;j+=4){
+				if((*(uint16_t*)(ad-j))==0x4ff4){
+					NSLog(@"time_init:0x%lx",ad-j-aslr);
+					return ad-j;
+				}
+			}
 		}
-		address+=size;
 	}
-	return 0;
+	return false;
+}
+long search_time_scale(){
+	for(long ad=main_address;ad<main_address+main_size;ad++){
+		if((*(uint64_t*)(ad))==0x5400006b1e202008&&(*(uint16_t*)(ad+8))==0xcc00&&(*(char*)(ad+10))==0x00){
+			NSLog(@"time_scale:0x%lx",ad-0x10-aslr);
+			return ad-0x10;
+		}
+	}
+	return false;
+}
+long search_time_init_18(){
+	for(long ad=main_address;ad<main_address+main_size;ad++){
+		if((*(uint64_t*)(ad))==0xf900026891004108&&(*(uint64_t*)(ad+8))==0xa9037e7fb9005a7f&&(*(uint32_t*)(ad+16))==0xb9007a7f){
+			NSLog(@"time_init_18:0x%lx",ad-0x24-aslr);
+			return ad-0x24;
+		}
+	}
+	
+	return false;
+}
+
+long search_time_scale_18(){
+	for(long ad=main_address;ad<main_address+main_size;ad++){
+		if((*(uint32_t*)(ad))==0x1e202008&&(*(uint32_t*)(ad+8))==0xf90003ff){
+			NSLog(@"time_scale_18:0x%lx",ad-0x20-aslr);
+			return ad-0x20;
+		}
+		if((*(uint64_t*)(ad))==0x5400006b1e202008&&(*(uint8_t*)(ad+8))==0x00&&(*(char*)(ad+10))==0x00){
+			NSLog(@"time_scale_17:0x%lx",ad-0x10-aslr);
+			return ad-0x10;
+		}
+	}
+	return false;
 }
 
 bool hook_time_scale(){
@@ -246,13 +218,13 @@ bool hook_time_scale(){
 	NSLog(@"8. main: 0x%llx size: %ldMB",main_address-aslr,main_size/1024/1024);
 	
 	long time_init=0,time_scale=0;
-	time_init=scan(is_time_init);
-	time_scale=scan(is_time_scale);
+	time_init=search_time_init();
+	time_scale=search_time_scale();
 	
 	if(time_init&&time_scale) NSLog(@"9. Unity5");
 	else{
-		time_init=scan(is_time_init_18);
-		time_scale=scan(is_time_scale_18);
+		time_init=search_time_init_18();
+		time_scale=search_time_scale_18();
 		if(time_init&&time_scale) NSLog(@"9. Unity2018");
 		else{
 			NSLog(@"11. hook time_init/scale failed");
@@ -321,7 +293,7 @@ bool loadPref(){
 	mode=[prefs[@"mode"] intValue];
 	if(![apps containsObject:bundleIdentifier]) return false;
 	aslr=_dyld_get_image_vmaddr_slide(0);
-	NSLog(@"0. start");
+	NSLog(@"0. ver: 0.0.9");
 	NSLog(@"1. ASLR=0x%lx",aslr);
 	NSLog(@"2. app: %@",bundleIdentifier);
 	NSLog(@"3. mode(1-3): %d",mode+1);
