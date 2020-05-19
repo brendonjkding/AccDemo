@@ -8,10 +8,12 @@
 
 extern intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 
-#define AUTO 0
-#define GETTIMEOFDAY 1
-#define CLOCKGETTIME 2
-#define MIX 3
+typedef enum{
+	kModeAuto=0,
+	kModeGetTimeOfDay=1,
+	kModeClockGetTime=2,
+	kModeMix=3
+}accmode_t;
 
 long aslr;
 //conf
@@ -190,8 +192,11 @@ long search_time_scale(){
 long search_time_init_18(){
 	for(long ad=main_address;ad<main_address+main_size;ad++){
 		if((*(uint64_t*)(ad))==0xf900026891004108&&(*(uint64_t*)(ad+8))==0xa9037e7fb9005a7f&&(*(uint32_t*)(ad+16))==0xb9007a7f){
-			NSLog(@"time_init_18:0x%lx",ad-0x24-aslr);
-			return ad-0x24;
+			long ret;
+			if(*(uint16_t*)(ad-0x24)==0x4ff4) ret=ad-0x24;
+			else ret=ad-0x24+0x4;
+			NSLog(@"time_init_18:0x%lx",ret-aslr);
+			return ret;
 		}
 	}
 	
@@ -278,25 +283,29 @@ BOOL new_application_didFinishLaunchingWithOptions(id self, SEL _cmd,UIApplicati
 		[self bringSubviewToFront:button];
 }
 %end //UIWindow
-
-bool loadPref(){
-	NSLog(@"loading pref...");
+bool is_enabled_app(){
 	NSString* bundleIdentifier=[[NSBundle mainBundle] bundleIdentifier];
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"];
-	
-	NSArray *apps=prefs?prefs[@"apps"]:nil;
-	if(!apps) return false;
 	enabled=[prefs[@"enabled"] boolValue]==YES?1:0;
 	if(!enabled) return false;
+
+	NSArray *apps=prefs?prefs[@"apps"]:nil;
+	if(!apps) return false;
+	if([apps containsObject:bundleIdentifier]) return true;
+	return false;
+}
+void loadPref(){
+	NSLog(@"loadPref...");
+	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"];	
 	toast=[prefs[@"toast"] boolValue]==YES?1:0;
 	buttonEnabled=[prefs[@"buttonEnabled"] boolValue]==YES?1:0;
 	mode=[prefs[@"mode"] intValue];
-	if(![apps containsObject:bundleIdentifier]) return false;
+
 	aslr=_dyld_get_image_vmaddr_slide(0);
-	NSLog(@"0. ver: 0.0.9");
+	NSLog(@"0. ver: 0.0.10");
 	NSLog(@"1. ASLR=0x%lx",aslr);
-	NSLog(@"2. app: %@",bundleIdentifier);
-	NSLog(@"3. mode(1-3): %d",mode+1);
+	NSLog(@"2. app: %@",[[NSBundle mainBundle] bundleIdentifier]);
+	NSLog(@"3. mode(1-4): %d",mode+1);
 	NSLog(@"4. button: %d",buttonEnabled);
 	NSLog(@"5. toast: %d",toast);
 	rate_i=0;
@@ -311,34 +320,33 @@ bool loadPref(){
 			}
 		}
 	}
-	// if(!rate_count) return false;
 	rates[rate_count++]=1.0;
 	NSLog(@"6. rates:%f, %f, %f. num=%d",rates[0],rates[1],rates[2],rate_count);
 
 	if(button) [button setHidden:buttonEnabled?NO:YES];
-	return true;
 }
 %ctor {
-	NSLog(@"-----construct------");
-	if(loadPref()){
-		%init(_ungrouped);
-		if (objc_getClass("UnityAppController")) {
-			NSLog(@"7. Unity app");
-			if(mode==AUTO) {if(!hook_time_scale()) hook_gettimeofday();}
-			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
-			else if(mode==CLOCKGETTIME) hook_clock_gettime();
-			else if(mode==MIX) hook_time_scale()&&hook_gettimeofday();
-		}
-		else{
-			if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")) NSLog(@"7. cocos2d app");
-			else  NSLog(@"7. other app");
-			if(mode==AUTO) {if(!hook_gettimeofday()) hook_clock_gettime();}
-			else if(mode==GETTIMEOFDAY) hook_gettimeofday();
-			else if(mode==CLOCKGETTIME) hook_clock_gettime();
-		}
-		int token = 0;
-		notify_register_dispatch("com.brend0n.accDemo/loadPref", &token, dispatch_get_main_queue(), ^(int token) {
-    		loadPref();
-		});
+	if(!is_enabled_app()) return;
+	loadPref();
+	%init(_ungrouped);
+
+	if (objc_getClass("UnityAppController")) {
+		NSLog(@"7. Unity app");
+		if(mode==kModeAuto) {if(!hook_time_scale()) hook_gettimeofday();}
+		else if(mode==kModeGetTimeOfDay) hook_gettimeofday();
+		else if(mode==kModeClockGetTime) hook_clock_gettime();
+		else if(mode==kModeMix) hook_time_scale()&&hook_gettimeofday();
 	}
+	else{
+		if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")) NSLog(@"7. cocos2d app");
+		else  NSLog(@"7. other app");
+		if(mode==kModeAuto) {if(!hook_gettimeofday()) hook_clock_gettime();}
+		else if(mode==kModeGetTimeOfDay) hook_gettimeofday();
+		else if(mode==kModeClockGetTime) hook_clock_gettime();
+	}
+	
+	int token = 0;
+	notify_register_dispatch("com.brend0n.accDemo/loadPref", &token, dispatch_get_main_queue(), ^(int token) {
+		loadPref();
+	});
 }
