@@ -1,13 +1,7 @@
 # accDemo
 ![image](https://github.com/brendonjkding/accDemo/blob/master/pic/1.gif)
 
-## Tested on  
-* unity: fgo(cn, tw), monumentvalley(cn), re0(cn), stoneage(cn, but not playable due to anti-cheat system?) ,fgo(us, jp, not playable due to anti-jailbreak)
-* cocos2d: saoars(us), tomjerry(cn), summoners war(cn)
-* the country refers to the region of app store
-
-## References
-* [iosre / HippocampHairSalon](https://github.com/iosre/HippocampHairSalon) 
+## Credits
 * [remember17 / WHToast](https://github.com/remember17/WHToast)
 * [liwq87112 / WQSuspendView](https://github.com/liwq87112/WQSuspendView)
 * [SparkDev97 / libSparkAppList](https://github.com/SparkDev97/libSparkAppList)

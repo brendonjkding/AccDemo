@@ -1,5 +1,4 @@
 TARGET = iphone:clang:11.2:9.0
-export TARGET_CODESIGN_FLAGS="-Sent.xml"
 ARCHS= arm64 arm64e
 INSTALL_TARGET_PROCESSES = fatego ProductName GameDemo-mobile
 
@@ -8,8 +7,6 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = accDemo
 accDemo_FILES = Tweak.x $(wildcard WQSuspendView/*.m) $(wildcard WHToast/*.m) $(wildcard readmem/*.m)
 accDemo_CFLAGS = -fobjc-arc -Wno-unused-variable
-#accDemo_LIBRARIES= rocketbootstrap
-#accDemo_PRIVATE_FRAMEWORKS = AppSupport 
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += accdemo

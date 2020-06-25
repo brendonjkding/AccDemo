@@ -1,9 +1,30 @@
 #include "ACCPRootListController.h"
+#include "BDInfoListController.h"
 @implementation ACCPRootListController
 
 - (NSArray *)specifiers {
 	if (!_specifiers) {
 		_specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
+        PSSpecifier* spec;
+        
+        spec = [PSSpecifier preferenceSpecifierNamed:@"关于作者"
+                                              target:self
+                                              set:Nil
+                                              get:Nil
+                                              detail:Nil
+                                              cell:PSGroupCell
+                                              edit:Nil];
+        [spec setProperty:@"作者" forKey:@"label"];
+        [_specifiers addObject:spec];
+        spec = [PSSpecifier preferenceSpecifierNamed:@"关于作者"
+                                              target:self
+                                                 set:NULL
+                                                 get:NULL
+                                              detail:Nil
+                                                cell:PSLinkCell
+                                                edit:Nil];
+        spec->action = @selector(showInfo);
+        [_specifiers addObject:spec];
 	}
 
 	return _specifiers;
@@ -30,5 +51,10 @@
     if (notificationName) {
         CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), notificationName, NULL, NULL, YES);
     }
+}
+-(void)showInfo{
+  UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+  self.navigationItem.backBarButtonItem = backItem; 
+  [self.navigationController pushViewController:[[BDInfoListController alloc] init] animated:TRUE];
 }
 @end

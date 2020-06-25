@@ -47,14 +47,12 @@
 				<string>模式一(自动)</string>
 				<string>模式二</string>
 				<string>模式三</string>
-				<string>模式四</string>
 			</array>
 			<key>validValues</key>
 			<array>
 				<integer>0</integer>
 				<integer>1</integer>
 				<integer>2</integer>
-				<integer>3</integer>
 			</array>
 		</dict>
 

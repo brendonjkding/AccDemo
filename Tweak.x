@@ -11,8 +11,7 @@ extern intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 typedef enum{
 	kModeAuto=0,
 	kModeGetTimeOfDay=1,
-	kModeClockGetTime=2,
-	kModeMix=3
+	kModeClockGetTime=2
 }accmode_t;
 
 long aslr;
@@ -335,7 +334,6 @@ void loadPref(){
 		if(mode==kModeAuto) {if(!hook_time_scale()) hook_gettimeofday();}
 		else if(mode==kModeGetTimeOfDay) hook_gettimeofday();
 		else if(mode==kModeClockGetTime) hook_clock_gettime();
-		else if(mode==kModeMix) hook_time_scale()&&hook_gettimeofday();
 	}
 	else{
 		if (objc_getClass("EAGLView")||objc_getClass("CCEAGLView")) NSLog(@"7. cocos2d app");
