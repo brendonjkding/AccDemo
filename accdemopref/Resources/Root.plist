@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string></string>
+			<key>footerText</key>
+			<string>WARNING</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.brend0n.accdemo</string>
+			<key>key</key>
+			<string>enabled</string>
+			<key>label</key>
+			<string>ENABLED</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>CHOOSE_ENABLED_APP</string>
+			<key>action</key>
+			<string>selectApp</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>defaults</key>
+			<string>com.brend0n.accdemo</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>mode</string>
+			<key>label</key>
+			<string>MODE</string>
+			<key>validTitles</key>
+			<array>
+				<string>MODE_1</string>
+				<string>MODE_2</string>
+				<string>MODE_3</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+
+		
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>OPTIONS_ABOVE_NEED_RESTART</string>
+		</dict>
+
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SPEED_VALUE</string>
+			<key>footerText</key>
+			<string>MUTIL_SPEED_DESC</string>
+			<key>id</key>
+			<string>SPEED_GROUP</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>ADD_SPEED</string>
+			<key>action</key>
+			<string>addSpeed</string>
+			<key>id</key>
+			<string>ADD_SPEED</string>
+		</dict>
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>FLOAT_BUTTON_DESC</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.brend0n.accdemo</string>
+			<key>key</key>
+			<string>buttonEnabled</string>
+			<key>label</key>
+			<string>FLOAT_BUTTON</string>
+			<key>PostNotification</key>
+			<string>com.brend0n.accdemo/loadPref</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>SPEED_TOAST_DESC</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.brend0n.accdemo</string>
+			<key>key</key>
+			<string>toast</string>
+			<key>label</key>
+			<string>SPEED_TOAST</string>
+			<key>PostNotification</key>
+			<string>com.brend0n.accdemo/loadPref</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>AccDemo</string>
+</dict>
+</plist>

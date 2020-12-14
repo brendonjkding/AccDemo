@@ -21,7 +21,7 @@
 
 - (BOOL)isSelected
 {
-  NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"];
+  NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
   if(!prefs) return NO;
   BOOL buttonEnabled=prefs[@"buttonEnabled"]?[prefs[@"buttonEnabled"] boolValue]:NO;
   return buttonEnabled;
@@ -29,11 +29,10 @@
 
 - (void)setSelected:(BOOL)selected
 {
-	NSString* path=@"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist";
-  NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:path];
+  NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
   prefs[@"buttonEnabled"]=[NSNumber numberWithBool:selected];
-  [prefs writeToFile:path atomically:YES];
-  notify_post("com.brend0n.accDemo/loadPref");
+  [prefs writeToFile:kPrefPath atomically:YES];
+  notify_post("com.brend0n.accdemo/loadPref");
 
   _selected = selected;
   [super refreshState];  

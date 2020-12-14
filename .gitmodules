@@ -1,0 +1,6 @@
+[submodule "WHToast"]
+	path = WHToast
+	url = https://github.com/remember17/WHToast.git
+[submodule "WQSuspendView"]
+	path = WQSuspendView
+	url = https://github.com/liwq87112/WQSuspendView.git

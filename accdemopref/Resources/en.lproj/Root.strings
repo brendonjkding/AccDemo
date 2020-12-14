@@ -1,0 +1,29 @@
+"CHOOSE_ENABLED_APP"="Choose Enabled Games";
+"ABOUT_AUTHOR"="Author";
+"ACTION_YES"="YES";
+"ACTION_NO"="NO";
+"ENABLED"="Enabled";
+"SELECT_ALL"="Select All";
+"DESELECT_ALL"="Deselect All";
+"CANCEL"="Cancel";
+"SELECT_DESELECT_ALL"="Select/Deselect All";
+
+"WARNING"="Use this Tweak AT YOUR OWN RISK";
+
+"DESCRIPTION"="";
+
+"MODE"="Mode";
+"MODE_1"="Mode 1";
+"MODE_2"="Mode 2";
+"MODE_3"="Mode 3";
+
+"OPTIONS_ABOVE_NEED_RESTART"="Changes above need restarting game to take effect";
+
+"SPEED_VALUE"="Custom speed(0-100)";
+"ADD_SPEED"="Add a speed";
+"MUTIL_SPEED_DESC"="Press the floating button will switch between speeds above";
+
+"FLOAT_BUTTON"="Show floating button";
+"FLOAT_BUTTON_DESC"="There is also a toggle in Control Center";
+"SPEED_TOAST"="Show speed";
+"SPEED_TOAST_DESC"="Show speed value when changing speed";

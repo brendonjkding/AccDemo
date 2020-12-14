@@ -9,13 +9,13 @@
 		<key>cell</key>
 		<string>PSLinkCell</string>
 		<key>detail</key>
-		<string>ACCPRootListController</string>
+		<string>AccRootListController</string>
 		<key>icon</key>
 		<string>icon.png</string>
 		<key>isController</key>
 		<true/>
 		<key>label</key>
-		<string>accDemo</string>
+		<string>AccDemo</string>
 	</dict>
 </dict>
 </plist>

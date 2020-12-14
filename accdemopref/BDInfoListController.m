@@ -1,15 +1,26 @@
 #import "BDInfoListController.h"
 #import <Preferences/PSSpecifier.h>
 
+@interface PSTableCell()
+-(id)iconImageView;
+@end
+
 @implementation BDInfoListController
 -(void)loadView{
-	[super loadView];
-    self.navigationItem.title = @"作者";
+  [super loadView];
+    self.navigationItem.title = @"Brend0n";
     
 }
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+  id cell=[super tableView:tableView cellForRowAtIndexPath:indexPath];
+  UIImageView* imageView=[cell iconImageView];
+  imageView.layer.cornerRadius = 7.0;
+  imageView.layer.masksToBounds = YES;
+  return cell;
+}
 - (NSArray *)specifiers {
-	if (!_specifiers) {
-		_specifiers = [NSMutableArray arrayWithCapacity:5];
+  if (!_specifiers) {
+        _specifiers = [NSMutableArray arrayWithCapacity:5];
 
         PSSpecifier* spec;
         spec = [PSSpecifier preferenceSpecifierNamed:@""
@@ -104,46 +115,40 @@
         [spec setProperty:[UIImage imageNamed:@"paypal" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
         [_specifiers addObject:spec];
 
-	}
+  }
 
-	return _specifiers;
+  return _specifiers;
 }
 
 - (void)open_bilibili{
-    UIApplication *app = [UIApplication sharedApplication];
-    if ([app canOpenURL:[NSURL URLWithString:@"bilibili://space/22182611"]]) {
-        [app openURL:[NSURL URLWithString:@"bilibili://space/22182611"]];
-    } else {
-        [app openURL:[NSURL URLWithString:@"https://space.bilibili.com/22182611"]];
-    }
+  if ([UIApp canOpenURL:[NSURL URLWithString:@"bilibili://space/22182611"]]) {
+      [UIApp openURL:[NSURL URLWithString:@"bilibili://space/22182611"]];
+  } else {
+      [UIApp openURL:[NSURL URLWithString:@"https://space.bilibili.com/22182611"]];
+  }
 }
 - (void)open_github{
-  UIApplication *app = [UIApplication sharedApplication];
-  [app openURL:[NSURL URLWithString:@"https://github.com/brendonjkding"]];
+  [UIApp openURL:[NSURL URLWithString:@"https://github.com/brendonjkding/accDemo"]];
 }
 - (void)open_alipay{
-  UIApplication *app = [UIApplication sharedApplication];
-  [app openURL:[NSURL URLWithString:@"https://qr.alipay.com/fkx199226yyspdubbiibddc"]];
+  [UIApp openURL:[NSURL URLWithString:@"https://qr.alipay.com/fkx199226yyspdubbiibddc"]];
 }
 - (void)open_paypal{
-  UIApplication *app = [UIApplication sharedApplication];
-  [app openURL:[NSURL URLWithString:@"https://paypal.me/brend0n"]];
+  [UIApp openURL:[NSURL URLWithString:@"https://paypal.me/brend0n"]];
 }
 - (void)open_cydia{
-  UIApplication *app = [UIApplication sharedApplication];
-  [app openURL:[NSURL URLWithString:@"cydia://url/https://cydia.saurik.com/api/share#?source=http://brendonjkding.github.io"]];
+  [UIApp openURL:[NSURL URLWithString:@"cydia://url/https://cydia.saurik.com/api/share#?source=http://brendonjkding.github.io"]];
 }
 - (void)open_twitter{
-  UIApplication *app = [UIApplication sharedApplication];
-	if ([app canOpenURL:[NSURL URLWithString:@"twitter://user?screen_name=brendonjkding"]]) {
-		[app openURL:[NSURL URLWithString:@"twitter://user?screen_name=brendonjkding"]];
-	} 
-	else if ([app canOpenURL:[NSURL URLWithString:@"tweetbot:///user_profile/brendonjkding"]]) {
-		[app openURL:[NSURL URLWithString:@"tweetbot:///user_profile/brendonjkding"]];		
-	} 
-	else {
-		[app openURL:[NSURL URLWithString:@"https://mobile.twitter.com/brendonjkding"]];
-	}
+  if ([UIApp canOpenURL:[NSURL URLWithString:@"twitter://user?screen_name=brendonjkding"]]) {
+    [UIApp openURL:[NSURL URLWithString:@"twitter://user?screen_name=brendonjkding"]];
+  } 
+  else if ([UIApp canOpenURL:[NSURL URLWithString:@"tweetbot:///user_profile/brendonjkding"]]) {
+    [UIApp openURL:[NSURL URLWithString:@"tweetbot:///user_profile/brendonjkding"]];    
+  } 
+  else {
+    [UIApp openURL:[NSURL URLWithString:@"https://mobile.twitter.com/brendonjkding"]];
+  }
 }
 
 @end
