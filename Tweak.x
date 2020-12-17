@@ -296,13 +296,15 @@ static void hook_time_scale(){
 %hook UIWindow
 - (void)bringSubviewToFront:(UIView *)view{
     %orig;
-    if(button&&view!=button)
+    if(button&&view!=button){
         [self bringSubviewToFront:button];
+    }
 }
 - (void)addSubview:(UIView *)view{
     %orig;
-    if(button&&view!=button)
+    if(button&&view!=button){
         [self bringSubviewToFront:button];
+    }
 }
 %end //UIWindow
 
@@ -405,7 +407,7 @@ static void backwardsCompatibility(){
     if(!prefs[@"speedKeys"]) prefs[@"speedKeys"]=[NSMutableArray new];
     NSMutableArray *speedKeys = prefs[@"speedKeys"];
 
-    BOOL isUpdatedFrom011;
+    BOOL isUpdatedFrom011=0;
     for(int i=0;i<3;i++){
        NSString *deprecatedKey=[NSString stringWithFormat:@"rate%d",i+1];
        if(prefs[deprecatedKey]){

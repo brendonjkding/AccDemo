@@ -1,7 +1,7 @@
 Package: com.brend0n.accdemo
 Name: accDemo
 Depends: mobilesubstrate, preferenceloader, applist
-Version: 0.2.0
+Version: 0.2.0r2
 Architecture: iphoneos-arm
 Description: unity/cocos2d game accelerator
 Maintainer: Brend0n <brendonjkding@126.com>
