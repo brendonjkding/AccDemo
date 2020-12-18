@@ -311,6 +311,7 @@ static void hook_time_scale(){
 %end //ui
 
 static void initButton(){
+    [WHToast setShowMask:NO];
     [WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
 		rate_i=(rate_i+1)%rate_count;
 		NSLog(@"Now rates:%f",rates[rate_i]);
