@@ -135,8 +135,8 @@
     [settings addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:path]];
 
     id origValue=value;
-    if([specifier.properties[@"key"] hasPrefix:@"speed~"]&&[value floatValue]<0.f) value=@0.f;
-    if([specifier.properties[@"key"] hasPrefix:@"speed~"]&&[value floatValue]>100.f) value=@100.f;
+    if([specifier.properties[@"key"] hasPrefix:@"speed-"]&&[value floatValue]<0.f) value=@0.f;
+    if([specifier.properties[@"key"] hasPrefix:@"speed-"]&&[value floatValue]>100.f) value=@100.f;
 
 
     [settings setObject:value forKey:specifier.properties[@"key"]];
