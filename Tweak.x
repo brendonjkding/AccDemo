@@ -117,6 +117,7 @@ static time_t true_pre_sec;
 static suseconds_t true_pre_usec;
 
 #define USec_Scale (1000000LL)
+#define NSec_Scale (1000000000LL)
 
 #pragma mark gettimeofday
 %group gettimeofday
@@ -171,16 +172,16 @@ static void hook_gettimeofday(){
 			true_pre_usec=tp->tv_nsec;
 		}
 		else{
-			int64_t true_curSec= tp->tv_sec*USec_Scale + tp->tv_nsec;
-			int64_t true_preSec= true_pre_sec*USec_Scale + true_pre_usec;
+			int64_t true_curSec= tp->tv_sec*NSec_Scale + tp->tv_nsec;
+			int64_t true_preSec= true_pre_sec*NSec_Scale + true_pre_usec;
 			int64_t invl=true_curSec-true_preSec;
 			invl*=rates[rate_i];
 			
-			int64_t curSec=pre_sec*USec_Scale + pre_usec;
+			int64_t curSec=pre_sec*NSec_Scale + pre_usec;
 			curSec+=invl;
 
-			time_t used_sec = curSec/USec_Scale;
-			suseconds_t used_usec = curSec%USec_Scale;
+			time_t used_sec = curSec/NSec_Scale;
+			suseconds_t used_usec = curSec%NSec_Scale;
 
 			true_pre_sec = tp->tv_sec;
 			true_pre_usec = tp->tv_nsec;
