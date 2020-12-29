@@ -310,6 +310,15 @@ static void hook_time_scale(){
 
 %end //ui
 
+%group UIAppDelegate_window
+%hook UIAppDelegateClass
+%new
+-(id)window{
+    return nil;
+}
+%end //UIAppDelegateClass
+%end //UIAppDelegate_window
+
 static void initButton(){
     [WHToast setShowMask:NO];
     [WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
@@ -331,7 +340,7 @@ static void initButton(){
     label.adjustsFontSizeToFitWidth=YES;
     [button addSubview:label];
 
-    if(!button.superview){
+    if(!button.superview&&[[UIApp delegate] respondsToSelector:@selector(window)]){
         [[[UIApp delegate] window] addSubview:button];
         [[[UIApp delegate] window] bringSubviewToFront:button];
     }
@@ -396,6 +405,9 @@ static void loadPref(){
 	if(button) [button setHidden:!buttonEnabled];
 }
 static void UIApplicationDidFinishLaunching(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo){
+    if(![[UIApp delegate] respondsToSelector:@selector(window)]){
+        %init(UIAppDelegate_window,UIAppDelegateClass=[[UIApp delegate] class]);
+    }
 	initButton();
 }
 
