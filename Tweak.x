@@ -413,51 +413,7 @@ static void UIApplicationDidFinishLaunching(CFNotificationCenterRef center, void
 }
 
 #pragma mark ctor
-static void backwardsCompatibility(){
-    // 0.1.1 compatibility (will be removed in next version)
-    NSData *data = [NSData dataWithContentsOfFile:kPrefPath];
-    if(!data) return;
-    NSMutableDictionary *prefs = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListMutableContainersAndLeaves format:NULL error:NULL];
-    if(!prefs[@"speedKeys"]) prefs[@"speedKeys"]=[NSMutableArray new];
-    NSMutableArray *speedKeys = prefs[@"speedKeys"];
-
-    BOOL isUpdatedFrom011=0;
-    for(int i=0;i<3;i++){
-       NSString *deprecatedKey=[NSString stringWithFormat:@"rate%d",i+1];
-       if(prefs[deprecatedKey]){
-            isUpdatedFrom011=YES;
-            float rate=[prefs[deprecatedKey] floatValue];
-            if(rate>=0&&rate<=100.0&&rate!=1.0){
-                int j=1;
-                NSString*speedKey=[NSString stringWithFormat:@"speed-%d",j];
-                while(true){
-                  if(![speedKeys containsObject:speedKey]) break;
-                  speedKey=[NSString stringWithFormat:@"speed-%d",++j];
-                }
-                [speedKeys addObject:speedKey];
-                prefs[speedKey]=@(rate);
-            }
-            [prefs removeObjectForKey:deprecatedKey];
-       }
-    }
-
-    if(isUpdatedFrom011){
-        int j=1;
-        NSString*speedKey=[NSString stringWithFormat:@"speed-%d",j];
-        while(true){
-          if(![speedKeys containsObject:speedKey]) break;
-          speedKey=[NSString stringWithFormat:@"speed-%d",++j];
-        }
-        [speedKeys addObject:speedKey];
-        prefs[speedKey]=@1;
-        [prefs writeToFile:kPrefPath atomically:YES];
-    }
-}
 %ctor {
-	if([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:kSpringBoardBundleId]){
-		backwardsCompatibility();
-	}
-
 	if(!isEnabledApp()) return;
     %init(ui);
 

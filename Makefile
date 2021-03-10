@@ -3,7 +3,7 @@ ifdef SIMULATOR
 	ARCHS = x86_64
 else
 	TARGET = iphone:clang:11.2:7.0
-	ARCHS= armv7 arm64 arm64e
+	ARCHS= armv7 arm64
 endif
  
 INSTALL_TARGET_PROCESSES = fatego ProductName GameDemo-mobile 
