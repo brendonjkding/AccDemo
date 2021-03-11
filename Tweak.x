@@ -16,6 +16,15 @@ kern_return_t mach_vm_region
 	mach_port_t *object_name
 );
 
+extern kern_return_t mach_vm_read
+(
+    vm_map_t        map,
+    mach_vm_address_t   addr,
+    mach_vm_size_t      size,
+    pointer_t       *data,
+    mach_msg_type_number_t  *data_size
+);
+
 #import "SuspendView/WQSuspendView.h"
 #import "WHToast/WHToast.h"
 
@@ -94,6 +103,9 @@ static kern_return_t get_region_address_and_size(mach_vm_offset_t *address_p, ma
         *address_p += *size_p;
         return get_region_address_and_size(address_p, size_p);
     }
+    pointer_t buffer;
+    mach_msg_type_number_t bufferSize = *size_p;
+    if ((ret = mach_vm_read(mach_task_self(), *address_p, *size_p, &buffer, &bufferSize)) != KERN_SUCCESS) return ret;
     return ret;
 }
 
