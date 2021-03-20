@@ -30,25 +30,3 @@ SUBPROJECTS += ccaccdemo
 include $(THEOS)/makefiles/common.mk
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
-
-ifdef SIMULATOR
-include $(THEOS)/makefiles/locatesim.mk
-BUNDLE_NAME = accDemo
-PREF_FOLDER_NAME = accdemopref
-endif
-
-setup:: all
-	@rm -f /opt/simject/$(TWEAK_NAME).dylib
-	@cp -v $(THEOS_OBJ_DIR)/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).dylib
-	@codesign -f -s - /opt/simject/$(TWEAK_NAME).dylib
-	@cp -v $(PWD)/$(TWEAK_NAME).plist /opt/simject
-	@sudo cp -v $(PWD)/$(PREF_FOLDER_NAME)/entry.plist $(PL_SIMULATOR_PLISTS_PATH)/$(BUNDLE_NAME).plist
-	@sudo cp -vR $(THEOS_OBJ_DIR)/$(BUNDLE_NAME).bundle $(PL_SIMULATOR_BUNDLES_PATH)/
-	@sudo codesign -f -s - $(PL_SIMULATOR_BUNDLES_PATH)/$(BUNDLE_NAME).bundle/$(BUNDLE_NAME)
-	@resim
-
-remove::
-	@rm -f /opt/simject/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).plist
-	@sudo rm -r $(PL_SIMULATOR_BUNDLES_PATH)/$(BUNDLE_NAME).bundle
-	@sudo rm $(PL_SIMULATOR_PLISTS_PATH)/$(BUNDLE_NAME).plist
-	@resim
