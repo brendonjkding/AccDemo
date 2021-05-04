@@ -405,7 +405,7 @@ static void loadFrameWork(){
 static BOOL isEnabledApp(){
 	NSString* bundleIdentifier=[[NSBundle mainBundle] bundleIdentifier];
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
-	enabled=prefs[@"enabled"]?[prefs[@"enabled"] boolValue]:NO;
+	enabled=prefs[@"enabled"]?[prefs[@"enabled"] boolValue]:YES;
 	if(!enabled) return NO;
 
 	return [prefs[@"apps"] containsObject:bundleIdentifier];
@@ -413,8 +413,8 @@ static BOOL isEnabledApp(){
 static void loadPref(){
 	NSLog(@"loadPref...");
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];	
-	toast=prefs[@"toast"]?[prefs[@"toast"] boolValue]:NO;
-	buttonEnabled=prefs[@"buttonEnabled"]?[prefs[@"buttonEnabled"] boolValue]:NO;
+	toast=prefs[@"toast"]?[prefs[@"toast"] boolValue]:YES;
+	buttonEnabled=prefs[@"buttonEnabled"]?[prefs[@"buttonEnabled"] boolValue]:YES;
 	mode=prefs[@"mode"]?[prefs[@"mode"] intValue]:0;
 
 	NSLog(@"2. app: %@",[[NSBundle mainBundle] bundleIdentifier]);

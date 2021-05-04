@@ -16,7 +16,7 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
-			<false/>
+			<true/>
 			<key>defaults</key>
 			<string>com.brend0n.accdemo</string>
 			<key>key</key>
@@ -107,7 +107,7 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
-			<false/>
+			<true/>
 			<key>defaults</key>
 			<string>com.brend0n.accdemo</string>
 			<key>key</key>
@@ -128,7 +128,7 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
-			<false/>
+			<true/>
 			<key>defaults</key>
 			<string>com.brend0n.accdemo</string>
 			<key>key</key>
