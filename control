@@ -1,18 +1,9 @@
 Package: com.brend0n.accdemo
 Name: AccDemo
 Depends: mobilesubstrate, preferenceloader, applist
-Version: 0.2.1b2
+Version: 0.2.2
 Architecture: iphoneos-arm
-Description: control the speed of your game
- control the speed of your game
- 0.2.1b2: no longer inject into unnecessary processes introduced in 0.2.1b1
- 0.2.1b1: fix Tweak not loading by some games and potential crash
- 0.2.0r6: fix a bug which cause invalid speed value can't be correct automatically
- 0.2.0r5: fix a bug which cause speed in mode 3 not controllable
-          fix a bug which crash the game when changing speed with showing option on
- 0.2.0r4: remove background in speed pop-up
- 0.2.0r3: add 32-bit device compatibility (only mode 2 or 3) and fix low iOS version compatibility
- 0.2.0r2: fix a bug which cause a new speed being added each time the device respring
+Description: Control the speed of your game
 Maintainer: Brend0n <brendonjkding@126.com>
 Author: Brend0n <brendonjkding@126.com>
 Section: Tweaks
