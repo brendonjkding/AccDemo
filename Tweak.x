@@ -240,7 +240,7 @@ static long find_ref_to_str(long ad_str){
     mach_vm_offset_t address=0;
     mach_vm_size_t size=0;
     while(get_region_address_and_size(&address,&size)==KERN_SUCCESS){
-        // NSLog(@"0x%lx 0x%lx",(long)address-aslr,(long)address+(long)size-aslr);
+        // NSLog(@"ref: 0x%lx 0x%lx",(long)address-aslr,(long)address+(long)size-aslr);
         for(long ad=address;ad+4<address+size;ad+=4){
             int32_t ins=*(int32_t*)ad;
             int32_t ins2=*(int32_t*)(ad+4);
@@ -258,7 +258,7 @@ static long find_ad_ref(){
     mach_vm_offset_t address=0;
     mach_vm_size_t size=0;
     while(get_region_address_and_size(&address,&size)==KERN_SUCCESS){
-        // NSLog(@"0x%lx 0x%lx",(long)address-aslr,(long)address+(long)size-aslr);
+        // NSLog(@"str: 0x%lx 0x%lx",(long)address-aslr,(long)address+(long)size-aslr);
         for(long ad=address;ad<address+size;ad++){
             static const char *t="UnityEngine.Time::set_timeScale";
             if(!strcmp((const char*)(ad),t)) {
@@ -331,6 +331,27 @@ static void hook_time_scale(){
 }
 %end //UIAppDelegateClass
 %end //UIAppDelegate_window
+
+static void initHook(){
+    switch(mode){
+        case kModeAuto:
+            if(%c(UnityAppController)){
+                hook_time_scale();
+            }
+            else {
+                hook_gettimeofday();
+            }
+            break;
+        case kModeGetTimeOfDay:
+            hook_gettimeofday();
+            break;
+        case kModeClockGetTime:
+            hook_clock_gettime();
+            break;
+        default:
+            break;
+    }
+}
 
 static void initButton(){
     [WHToast setShowMask:NO];
@@ -422,31 +443,18 @@ static void UIApplicationDidFinishLaunching(CFNotificationCenterRef center, void
         %init(UIAppDelegate_window,UIAppDelegateClass=[[UIApp delegate] class]);
     }
 	initButton();
+    initHook();
 }
 
 #pragma mark ctor
 %ctor {
 	if(!isEnabledApp()) return;
+    NSLog(@"-----------------");
     %init(ui);
 
 	loadPref();
 	loadFrameWork();
 
-	switch(mode){
-		case kModeAuto:
-			if(%c(UnityAppController)) hook_time_scale();
-			else hook_gettimeofday();
-			break;
-		case kModeGetTimeOfDay:
-			hook_gettimeofday();
-			break;
-		case kModeClockGetTime:
-			hook_clock_gettime();
-			break;
-		default:
-			break;
-	}
-	
 	int token = 0;
 	notify_register_dispatch("com.brend0n.accdemo/loadPref", &token, dispatch_get_main_queue(), ^(int token) {
 		loadPref();
