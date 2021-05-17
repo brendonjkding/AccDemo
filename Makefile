@@ -32,5 +32,16 @@ include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
 after-stage::
-	@rm $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/accDemo.plist
+ifdef SIMULATOR
+	@rm -f $(THEOS_STAGING_DIR)/accDemo.plist
+	@ln -s /var/mobile/Library/Preferences/accDemo.plist $(THEOS_STAGING_DIR)/accDemo.plist
+else
+	@rm -f $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/accDemo.plist
 	@ln -s /var/mobile/Library/Preferences/accDemo.plist $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/accDemo.plist
+endif
+
+setup::
+	@ln -s /opt/simject/var/mobile/Library/Preferences/accDemo.plist /var/mobile/Library/Preferences/accDemo.plist
+
+remove::
+	@rm -f /var/mobile/Library/Preferences/accDemo.plist
