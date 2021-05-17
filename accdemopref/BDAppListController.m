@@ -88,6 +88,7 @@
       [spec setProperty:_defaults forKey:@"defaults"];
       [spec setProperty:displayIdentifier forKey:@"detail"];
       [spec setProperty:NSClassFromString(@"BDAPPSwitchTableCell") forKey:@"cellClass"];
+      [spec setProperty:@"com.brend0n.accdemo/loadPref" forKey:@"PostNotification"];
       
       [_specifiers addObject:spec];
         

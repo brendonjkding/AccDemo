@@ -3,7 +3,7 @@ ifdef SIMULATOR
 	ARCHS = x86_64
 else
 	TARGET = iphone:clang:11.2:7.0
-	ARCHS= armv7 arm64
+	ARCHS= armv7 arm64 arm64e
 endif
  
 INSTALL_TARGET_PROCESSES = fatego ProductName GameDemo-mobile 
@@ -30,3 +30,7 @@ SUBPROJECTS += ccaccdemo
 include $(THEOS)/makefiles/common.mk
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
+
+after-stage::
+	@rm $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/accDemo.plist
+	@ln -s /var/mobile/Library/Preferences/accDemo.plist $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/accDemo.plist
