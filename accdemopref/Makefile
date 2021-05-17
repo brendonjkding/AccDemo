@@ -1,8 +1,7 @@
 ifdef SIMULATOR
-	TARGET = simulator:clang:11.2:8.0
-	ARCHS = x86_64
+	TARGET = simulator:clang:latest:8.0
 else
-	TARGET = iphone:clang:11.2:7.0
+	TARGET = iphone:clang:latest:7.0
 	ARCHS= armv7 arm64 arm64e
 endif
 
