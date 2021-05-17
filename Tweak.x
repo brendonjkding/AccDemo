@@ -215,15 +215,19 @@ static void hook_clock_gettime(){
 }
 
 #pragma mark unity
-static void (*orig_set_timeScale)(float arg1);
-void my_set_timeScale(float arg1){
+
+typedef void (*orig_t)(float);
+
+%group unity
+%hookf(void, set_timeScale, float arg1){
     NSLog(@"orig_scale: %f",arg1);
     
     arg1=rates[rate_i];
-    orig_set_timeScale(arg1);
+    %orig(arg1);
 
     NSLog(@"used scale:%f",arg1);
 }
+%end //unity
 
 static long find_ad_set_timeScale(long ad_ref){
     ad_ref+=8;
@@ -286,7 +290,7 @@ static void hook_time_scale(){
     long ad_set_timeScale=find_ad_set_timeScale(ad_ref);
 
     NSLog(@"hook set_timeScale start");
-    MSHookFunction((void *)ad_set_timeScale, (void *)my_set_timeScale, (void **)&orig_set_timeScale);
+    %init(unity, set_timeScale=(void*)ad_set_timeScale)
     NSLog(@"hook set_timeScale success");
 }
 
@@ -361,8 +365,12 @@ static void initButton(){
     [WQSuspendView showWithType:WQSuspendViewTypeNone tapBlock:^{
         rate_i=(rate_i+1)%rate_count;
         NSLog(@"Now rates:%f",rates[rate_i]);
-        if(orig_set_timeScale) orig_set_timeScale(rates[rate_i]);
-        if(toast) [WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
+        if(_logos_orig$unity$set_timeScale) {
+            ((orig_t)_logos_orig$unity$set_timeScale)(rates[rate_i]);
+        }
+        if(toast) {
+            [WHToast showSuccessWithMessage:[NSString stringWithFormat:@"%f",rates[rate_i]] duration:0.5 finishHandler:^{}];
+        }
     }];
     button.frame=CGRectMake(0, 200, 40, 40);
     button.backgroundColor = [UIColor blackColor];
