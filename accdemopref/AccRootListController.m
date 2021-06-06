@@ -43,7 +43,7 @@
         spec->action = @selector(showLicenses);
         [_specifiers addObject:spec];
 
-        spec = [PSSpecifier preferenceSpecifierNamed:AccNSLocalizedString(@"ABOUT_AUTHOR")
+        spec = [PSSpecifier preferenceSpecifierNamed:[[NSBundle bundleForClass:[self class]] localizedStringForKey:@"AUTHOR" value:@"Author" table:@"Root"]
                                               target:self
                                                  set:NULL
                                                  get:NULL

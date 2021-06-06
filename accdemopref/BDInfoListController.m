@@ -1,7 +1,7 @@
 #import "BDInfoListController.h"
 #import <Preferences/PSSpecifier.h>
 
-extern UIApplication* UIApp;
+extern UIApplication *UIApp;
 
 @interface PSTableCell()
 -(id)iconImageView;
@@ -37,8 +37,10 @@ extern UIApplication* UIApp;
                                                 cell:PSLinkCell
                                                 edit:Nil];
         spec->action = @selector(open_twitter);
-        [spec setProperty:@YES forKey:@"hasIcon"];
-        [spec setProperty:[UIImage imageNamed:@"twitter" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        if(@available(iOS 8.0, *)){
+            [spec setProperty:@YES forKey:@"hasIcon"];
+            [spec setProperty:[UIImage imageNamed:@"twitter" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        }
         [_specifiers addObject:spec];
 
         spec = [PSSpecifier preferenceSpecifierNamed:@"Donate"
@@ -49,8 +51,10 @@ extern UIApplication* UIApp;
                                                 cell:PSLinkCell
                                                 edit:Nil];
         spec->action = @selector(open_paypal);
-        [spec setProperty:@YES forKey:@"hasIcon"];
-        [spec setProperty:[UIImage imageNamed:@"paypal" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        if(@available(iOS 8.0, *)){
+            [spec setProperty:@YES forKey:@"hasIcon"];
+            [spec setProperty:[UIImage imageNamed:@"paypal" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        }
         [_specifiers addObject:spec];
 
 
@@ -62,11 +66,13 @@ extern UIApplication* UIApp;
                                                 cell:PSLinkCell
                                                 edit:Nil];
         spec->action = @selector(open_github);
-        [spec setProperty:@YES forKey:@"hasIcon"];
-        [spec setProperty:[UIImage imageNamed:@"github" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        if(@available(iOS 8.0, *)){
+            [spec setProperty:@YES forKey:@"hasIcon"];
+            [spec setProperty:[UIImage imageNamed:@"github" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        }
         [_specifiers addObject:spec];
 
-        spec = [PSSpecifier preferenceSpecifierNamed:@"Add my repo"
+        spec = [PSSpecifier preferenceSpecifierNamed:[[NSBundle bundleForClass:[self class]] localizedStringForKey:@"ADD_MY_REPO" value:@"Add my repo" table:@"Root"]
                                               target:self
                                                  set:NULL
                                                  get:NULL
@@ -74,8 +80,10 @@ extern UIApplication* UIApp;
                                                 cell:PSLinkCell
                                                 edit:Nil];
         spec->action = @selector(open_cydia);
-        [spec setProperty:@YES forKey:@"hasIcon"];
-        [spec setProperty:[UIImage imageNamed:@"cydia" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        if(@available(iOS 8.0, *)){
+            [spec setProperty:@YES forKey:@"hasIcon"];
+            [spec setProperty:[UIImage imageNamed:@"cydia" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        }
         [_specifiers addObject:spec];
 
 
@@ -91,8 +99,10 @@ extern UIApplication* UIApp;
                                                 cell:PSLinkCell
                                                 edit:Nil];
         spec->action = @selector(open_alipay);
-        [spec setProperty:@YES forKey:@"hasIcon"];
-        [spec setProperty:[UIImage imageNamed:@"alipay" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        if(@available(iOS 8.0, *)){
+            [spec setProperty:@YES forKey:@"hasIcon"];
+            [spec setProperty:[UIImage imageNamed:@"alipay" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        }
         [_specifiers addObject:spec];
 
 
@@ -104,8 +114,10 @@ extern UIApplication* UIApp;
                                                 cell:PSLinkCell
                                                 edit:Nil];
         spec->action = @selector(open_bilibili);
-        [spec setProperty:@YES forKey:@"hasIcon"];
-        [spec setProperty:[UIImage imageNamed:@"bilibili" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        if(@available(iOS 8.0, *)){
+            [spec setProperty:@YES forKey:@"hasIcon"];
+            [spec setProperty:[UIImage imageNamed:@"bilibili" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] forKey:@"iconImage"];
+        }
         [_specifiers addObject:spec];
     }
     return _specifiers;
@@ -128,12 +140,12 @@ extern UIApplication* UIApp;
     [UIApp openURL:[NSURL URLWithString:@"https://paypal.me/brend0n"]];
 }
 - (void)open_cydia{
-  if ([UIApp canOpenURL:[NSURL URLWithString:@"twitter://user?screen_name=brendonjkding"]]){
-    [UIApp openURL:[NSURL URLWithString:@"cydia://url/https://cydia.saurik.com/api/share#?source=http://brendonjkding.github.io"]];
-  }
-  else{
-    [UIApp openURL:[NSURL URLWithString:@"sileo://source/https://brendonjkding.github.io"]];
-  }
+    if ([UIApp canOpenURL:[NSURL URLWithString:@"cydia://url/https://cydia.saurik.com/api/share#?source=http://brendonjkding.github.io"]]){
+        [UIApp openURL:[NSURL URLWithString:@"cydia://url/https://cydia.saurik.com/api/share#?source=http://brendonjkding.github.io"]];
+    }
+    else{
+        [UIApp openURL:[NSURL URLWithString:@"sileo://source/https://brendonjkding.github.io"]];
+    }
 }
 - (void)open_twitter{
     if ([UIApp canOpenURL:[NSURL URLWithString:@"twitter://user?screen_name=brendonjkding"]]) {
