@@ -2,6 +2,8 @@
 #import <Preferences/PSSpecifier.h>
 #import <AppList/AppList.h>
 
+extern UIApplication* UIApp;
+
 @interface PSControlTableCell : PSTableCell
 @end
 @interface PSSwitchTableCell : PSControlTableCell

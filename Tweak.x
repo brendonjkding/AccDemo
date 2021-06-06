@@ -4,7 +4,8 @@
 #import <mach-o/dyld.h>
 #import <mach/mach.h>
 #import <dlfcn.h>
-#import <theos/IOSMacros.h>
+
+extern UIApplication* UIApp;
 
 kern_return_t mach_vm_region
 (
@@ -458,30 +459,8 @@ static void UIApplicationDidFinishLaunching(CFNotificationCenterRef center, void
     initHook();
 }
 
-static void copyBundleIds(){
-    NSMutableDictionary *root=[NSMutableDictionary new];
-    NSMutableDictionary *filter=[NSMutableDictionary new];
-    NSMutableArray *apps=[NSMutableArray new];
-    root[@"Filter"]=filter;
-    filter[@"Bundles"]=apps;
-    [apps addObject:@"com.apple.UIKit"];
-    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
-    if(prefs[@"apps"]){
-        [apps addObjectsFromArray:prefs[@"apps"]];
-    }
-    [root writeToFile:@"/var/mobile/Library/Preferences/accDemo.plist" atomically:YES];
-}
-
 #pragma mark ctor
 %ctor {
-    if(IN_SPRINGBOARD){
-        copyBundleIds();
-        int token = 0;
-        notify_register_dispatch("com.brend0n.accdemo/loadPref", &token, dispatch_get_main_queue(), ^(int token) {
-            copyBundleIds();
-        });
-        return;
-    }
     if(!isEnabledApp()) return;
     NSLog(@"-----------------");
     %init(ui);

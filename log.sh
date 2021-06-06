@@ -1,1 +1,1 @@
-idevicesyslog | grep -E '\(C?C?acc[dD]emo' --color
+idevicesyslog | grep -Ei '\(C?C?accdemo' --color
