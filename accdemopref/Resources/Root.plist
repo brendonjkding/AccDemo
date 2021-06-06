@@ -26,11 +26,32 @@
 		</dict>
 		<dict>
 			<key>cell</key>
-			<string>PSButtonCell</string>
+			<string>PSLinkListCell</string>
+			<key>defaults</key>
+			<string>com.brend0n.accdemo</string>
 			<key>label</key>
 			<string>CHOOSE_ENABLED_APP</string>
-			<key>action</key>
-			<string>selectApp</string>
+			<key>detail</key>
+			<string>ATLApplicationListMultiSelectionController</string>
+			<key>key</key>
+			<string>apps</string>
+			<key>sections</key>
+			<array>
+				<dict>
+					<key>sectionType</key>
+					<string>Visible</string>
+				</dict>
+			</array>
+			<key>showIdentifiersAsSubtitle</key>
+			<true/>
+			<key>defaultApplicationSwitchValue</key>
+			<false/>
+			<key>useSearchBar</key>
+			<true/>
+			<key>includeIdentifiersInSearch</key>
+			<true/>
+			<key>PostNotification</key>
+			<string>com.brend0n.accdemo/loadPref</string>
 		</dict>
 
 		<dict>

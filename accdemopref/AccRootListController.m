@@ -1,6 +1,5 @@
 #import "AccRootListController.h"
 #import "BDInfoListController.h"
-#import "BDAppListController.h"
 #import "AccLicenseViewController.h"
 #import <notify.h>
 @implementation AccRootListController
@@ -117,11 +116,6 @@
   [self removeSpecifier:spec animated:YES];
 }
 
-- (void)selectApp{
-    BDAppListController* s = [[BDAppListController alloc] initWithDefaults:@"com.brend0n.accdemo" andKey:@"apps"];
-    [self.navigationController pushViewController:s animated:YES];
-    self.navigationItem.hidesBackButton = FALSE;
-}
 - (id)readPreferenceValue:(PSSpecifier*)specifier {
     NSString *path = [NSString stringWithFormat:@"/User/Library/Preferences/%@.plist", specifier.properties[@"defaults"]];
     NSMutableDictionary *settings = [NSMutableDictionary dictionary];

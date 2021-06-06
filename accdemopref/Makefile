@@ -7,7 +7,7 @@ endif
 
 BUNDLE_NAME = accDemo
 
-accDemo_FILES = $(wildcard *.m) LowiOSVersionCompatibility.x
+accDemo_FILES = $(wildcard *.m)
 accDemo_INSTALL_PATH = /Library/PreferenceBundles
 accDemo_FRAMEWORKS = UIKit
 accDemo_PRIVATE_FRAMEWORKS = Preferences
