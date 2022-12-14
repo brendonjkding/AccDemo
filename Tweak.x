@@ -381,10 +381,10 @@ static void initButton(){
     button.layer.borderWidth = 3.0;
     button.layer.borderColor = [UIColor whiteColor].CGColor;
 
-    UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake(3,-2,34,40)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(3, 13, 34, 14)];
     label.text=@"switch";
     label.textColor=[UIColor whiteColor];
-    label.adjustsFontSizeToFitWidth=YES;
+    label.font = [UIFont systemFontOfSize:11];
     [button addSubview:label];
 
     if(!button.superview&&[[UIApp delegate] respondsToSelector:@selector(window)]){
