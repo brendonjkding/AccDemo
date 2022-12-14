@@ -1,7 +1,7 @@
 Package: com.brend0n.accdemo
 Name: AccDemo
 Depends: mobilesubstrate, preferenceloader, com.opa334.altlist
-Version: 0.2.4
+Version: 0.2.5
 Architecture: iphoneos-arm
 Description: Control the speed of your game
 Maintainer: Brend0n <brendonjkding@126.com>
