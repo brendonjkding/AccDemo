@@ -2,7 +2,11 @@ ifdef SIMULATOR
 	TARGET = simulator:clang:latest:8.0
 else
 	TARGET = iphone:clang:latest:7.0
-	ARCHS= armv7 arm64
+	ifeq ($(THEOS_PACKAGE_SCHEME), rootless)
+		ARCHS = arm64 arm64e
+	else
+		ARCHS = armv7 arm64
+	endif
 endif
  
 INSTALL_TARGET_PROCESSES = fatego ProductName GameDemo-mobile 

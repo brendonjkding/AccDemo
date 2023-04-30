@@ -1,7 +1,7 @@
 #ifdef __OBJC__
 
-#define kPrefPath @"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"
-#define kBundlePath @"/Library/PreferenceBundles/accDemo.bundle"
+#define kPrefPath @THEOS_PACKAGE_INSTALL_PREFIX"/var/mobile/Library/Preferences/com.brend0n.accdemo.plist"
+#define kBundlePath @THEOS_PACKAGE_INSTALL_PREFIX"/Library/PreferenceBundles/accDemo.bundle"
 
 #define kSpringBoardBundleId @"com.apple.springboard"
 

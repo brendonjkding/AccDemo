@@ -17,6 +17,6 @@
     #if TARGET_OS_SIMULATOR
     dlopen("/opt/simject/AccDemo.dylib",RTLD_NOW);
     #else
-    dlopen("/Library/MobileSubstrate/DynamicLibraries/AccDemo.dylib",RTLD_NOW);
+    dlopen(THEOS_PACKAGE_INSTALL_PREFIX"/Library/MobileSubstrate/DynamicLibraries/AccDemo.dylib",RTLD_NOW);
     #endif
 }
