@@ -272,6 +272,7 @@ static long find_ad_ref(){
             static const char *t="UnityEngine.Time::set_timeScale";
             if(!strcmp((const char*)(ad),t)) {
                 static int count=0;
+                (void)count;
                 NSLog(@"ad_str candidate %d: 0x%lx",++count,ad-aslr);
                 long ad_ref=find_ref_to_str(ad);
                 if(ad_ref) return ad_ref;
